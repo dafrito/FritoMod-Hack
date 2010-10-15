@@ -247,11 +247,6 @@
                   <FontString inherits='GameFontHighlight'/>
                </EditBox>
             </ScrollChild>
-            <Frames>
-               <Button setAllPoints='true'>
-                  <Scripts> <OnClick> HackEditBox:SetFocus() </OnClick> </Scripts>
-               </Button>
-            </Frames>
          </ScrollFrame>
          <Button name='HackFontCycle' inherits='T_HackButton'>
             <Anchors> <Anchor point='RIGHT' relativeTo='HackEditFrameClose' relativePoint='LEFT'/> </Anchors>
