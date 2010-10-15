@@ -209,7 +209,6 @@
             <Scripts> <OnClick> PanelTemplates_SetTab(HackListFrame,2) Hack.SetMode('book') </OnClick> </Scripts> </Button>
       </Frames>
       <Scripts>
-         <OnEvent> Hack[event](self,arg1,arg2,arg3,arg4,arg5,ar6,arg7,arg9) </OnEvent>
          <OnLoad>
             Hack.OnLoad(self)
             PanelTemplates_SetNumTabs(HackListFrame, 2) 

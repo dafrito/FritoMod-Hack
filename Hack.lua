@@ -172,6 +172,9 @@ function Hack.OnLoad(self)
 
    self:RegisterEvent('VARIABLES_LOADED')
    self:RegisterEvent('CHAT_MSG_ADDON')
+   self:SetScript("OnEvent", function(_, event, ...)
+      Hack[event](self, ...);
+   end);
 
    SLASH_HACKSLASH1 = '/hack'
    SlashCmdList['HACKSLASH'] = 
