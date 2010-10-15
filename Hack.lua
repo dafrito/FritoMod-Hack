@@ -33,6 +33,7 @@ Hack = {
    },
    fonts = {
       'Interface\\AddOns\\Hack\\Media\\VeraMono.ttf',
+      'Interface\\AddOns\\Hack\\Media\\Inconsolata.ttf',
       'Fonts\\FRIZQT__.TTF',
       'Fonts\\ARIALN.TTF',
    },
