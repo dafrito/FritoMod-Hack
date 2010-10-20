@@ -29,10 +29,8 @@
    </CheckButton>
 
    <Frame name='T_HackResizableFrame' virtual='true' movable='true' resizable='true' enableMouse='true' hidden='false'>
-      <Backdrop bgFile='Interface\Addons\Hack\Media\EditorTile' edgeFile='Interface\Addons\Hack\Media\Border' tile='true'>
-         <BackgroundInsets> <AbsInset left='3' right='3' top='3' bottom='3'/> </BackgroundInsets>
-         <TileSize> <AbsValue val='128'/> </TileSize>
-         <EdgeSize> <AbsValue val= '14'/> </EdgeSize> 
+      <Backdrop edgeFile='Interface\Addons\Hack\Media\Border' tile='true'>
+          <EdgeSize> <AbsValue val= '14'/> </EdgeSize> 
       </Backdrop>
       <Layers>
          <Layer level='BACKGROUND'>
@@ -44,6 +42,17 @@
                   <Anchor point='RIGHT'> <Offset> <AbsDimension x='-3'/> </Offset> </Anchor>
                </Anchors>
             </Texture>
+       	    <Texture setAllPoints="true">
+                <Color r="0" g="0" b="0" a="1"/>
+                <Anchors>
+                        <!--is there an InSet setting?-->
+                        <Anchor point="TOPLEFT"> <OffSet x="3" y="-3"/> </Anchor>
+                        <Anchor point="TOPRIGHT"> <OffSet x="-3" y="-3"/> </Anchor>
+                        <Anchor point="BOTTOMLEFT"> <OffSet x="3" y="3"/> </Anchor>
+                        <Anchor point="BOTTOMRIGHT"> <OffSet x="-3" y="3"/> </Anchor>
+                </Anchors>
+            </Texture>
+       			
          </Layer>
       </Layers>
       <Frames>
