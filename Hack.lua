@@ -302,18 +302,18 @@ function Hack:UpdateLineNums()
 	local linebox = HackLineNumEditBoxFrame
 	local linescroll = HackLineNumScrollFrame
 	local linetest = HackEditBox:CreateFontString()
-        linetest:SetFont(Hack.fonts[db.font], db.fontsize)
+    linetest:SetFont(Hack.fonts[db.font], db.fontsize)
 
 
-	local width = editbox:GetWidth() -40
+	local width = editbox:GetWidth() -65 --accounting for text insets in the xml
 	local text = editbox:GetText(true)
 
 	local linetext = ""
 	local count = 1
 	for line in text:gmatch("([^\n]*\n?)") do
-                if #line > 0 then
-                        --will highlight if I ever put it in
-		        --linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
+            if #line > 0 then
+            --will highlight if I ever put it in
+		    --linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
 			linetext = linetext .. count .. "\n"
 			count = count + 1
 
@@ -321,27 +321,27 @@ function Hack:UpdateLineNums()
 			linetest:SetText(line:gsub("|", "||"))
 			local testwidth = linetest:GetWidth()
 			if testwidth >= width then
-				linetext = linetext .. string.rep("\n", testwidth / width)
-                                 
+				linetext = linetext .. string.rep("\n", math.floor(testwidth / width))	
 			end
 		end
 	end
+--[[
         --what is this doing?
 	if text:sub(-1, -1) == "\n" then
 		linetext = linetext .. count .. "\n"
 		count = count + 1
 	end
-       
+       --]]
 
 
 	-- Make the line number frame wider as necessary
         linetest:SetText(count)
 	local numwidth = linetest:GetWidth()
-        --always a 3 pixel buffer between the number and the other frame
+    --always a 3 pixel buffer between the number and the other frame
 	linescroll:SetWidth(3+numwidth)
 	linebox:SetWidth(3+numwidth)
 
-        --apply what we've done
+    --apply what we've done
 	linebox:SetText(linetext)  
               
 end

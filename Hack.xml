@@ -271,7 +271,7 @@
             </Anchors>
             <ScrollChild>
                <EditBox name='HackEditBox' multiLine='true' nonspacewrap='true' spacing='1' autoFocus='false'>
-                  <TextInsets> <AbsInset left='5' right='40' top='4' bottom='9'/> </TextInsets>
+                  <TextInsets> <AbsInset left='5' right='60' top='4' bottom='9'/> </TextInsets>
                   <Scripts>
                      <OnTextChanged>   ScrollingEdit_OnTextChanged(self, self:GetParent()) Hack.OnEditorTextChanged(self) </OnTextChanged>
                      <OnCursorChanged> ScrollingEdit_OnCursorChanged(self, x, y, w, h)                                    </OnCursorChanged>
@@ -287,11 +287,11 @@
             </Scripts>
          </ScrollFrame>
          <Button name="HackFocusGrabber">
-		 <Anchors>
-			<Anchor point="TOPLEFT">  <Offset> <AbsDimension x='4' y='-25'/> </Offset> </Anchor>
-			<Anchor point="BOTTOMRIGHT" relativeTo="HackEditFrame" relativePoint="BOTTOMRIGHT">  <Offset> <AbsDimension x='-4' y='7'/> </Offset> </Anchor>						
-		 </Anchors>
-         	<Scripts> <OnClick> HackEditBox:SetFocus() </OnClick> </Scripts>
+			 <Anchors>
+				<Anchor point="TOPLEFT">  <Offset> <AbsDimension x='4' y='-25'/> </Offset> </Anchor>
+				<Anchor point="BOTTOMRIGHT" relativeTo="HackEditFrame" relativePoint="BOTTOMRIGHT">  <Offset> <AbsDimension x='-4' y='7'/> </Offset> </Anchor>						
+		 	 </Anchors>
+         	 <Scripts> <OnClick> HackEditBox:SetFocus() </OnClick> </Scripts>
          </Button> 
          <Button name='HackFontCycle' inherits='T_HackButton'>
         	<Anchors> <Anchor point='RIGHT' relativeTo='HackEditFrameClose' relativePoint='LEFT'/> </Anchors>
