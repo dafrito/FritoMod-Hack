@@ -336,6 +336,7 @@ function Hack:UpdateLineNums()
 	-- Make the line number frame wider as necessary
 	local increase = tostring(count):len() * 10
 	linescroll:SetWidth(12+increase)
+	linebox:SetWidth(12+increase)
 
         --apply what we've done
 	linebox:SetText(linetext)  
