@@ -349,11 +349,7 @@ end
 
 function Hack.UpdateButtons()
    enableButton( HackDelete,   selected )
-   enableButton( HackRename,   selected )	local editbox = HackEditBox
-	local linebox = HackLineNumEditBoxFramelocal offset = tostring(count):len() * 10
-	local linetest = HackEditBox:CreateFontString()
-	local linescroll = HackLineNumScrollFrame
-
+   enableButton( HackRename,   selected )	
    enableButton( HackSend,     selected )
    enableButton( HackMoveUp,   selected and selected > 1 )
    enableButton( HackMoveDown, selected and selected < #items )
