@@ -1,0 +1,12 @@
+Version Key: Major Change. Minor Change. Tiny Change. Thonik Change
+
+1.0.0.2
+Replaced the (un)tiled background with a solid black one.
+
+1.0.0.1
+New hack pages will be created at the end of the current book instead of next to your current selection.
+
+1.0.0.0
+No Time adopted Hack 1.2 by Mud and made working in WoW 4.0. Using new superior version numbers.
+
+
