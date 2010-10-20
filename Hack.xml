@@ -281,6 +281,9 @@
                   <FontString inherits='GameFontHighlight'/>
                </EditBox>
             </ScrollChild>
+            <Scripts>
+                <OnVerticalScroll> HackLineNumScrollFrame:SetVerticalScroll(offset); </OnVerticalScroll>
+            </Scripts>
          </ScrollFrame>
          <Button name='HackFontCycle' inherits='T_HackButton'>
             <Anchors> <Anchor point='RIGHT' relativeTo='HackEditFrameClose' relativePoint='LEFT'/> </Anchors>
