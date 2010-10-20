@@ -375,7 +375,7 @@ function Hack.FinishRename(name, editbox)
 end
 
 function Hack.New(page)
-   local index = selected or #items+1
+   local index = #items+1 --thonik: selected or #items+1 to current -- makes all new pages start at end
    local data = (mode == 'page') and '' or {}
    page = page or { name='', data=data }
    table.insert(items, index, page)
