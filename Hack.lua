@@ -1,5 +1,7 @@
 --------------------------------------------------------------------------------
--- Hack. Notebook addon. Eric Tetz <erictetz@gmail.com> 2008 
+-- Original Author: Eric Tetz <erictetz@gmail.com> 2008   
+-- Hack. Ingame Lua editing and compiling. Frito. Thonik. 
+
 --------------------------------------------------------------------------------
 
 HackDB = { -- default settings saved variables
