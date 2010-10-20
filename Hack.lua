@@ -305,7 +305,7 @@ function Hack:UpdateLineNums()
         linetest:SetFont(Hack.fonts[db.font], db.fontsize)
 
 
-	local width = editbox:GetWidth() 
+	local width = editbox:GetWidth() -40
 	local text = editbox:GetText(true)
 
 	local linetext = ""
@@ -321,7 +321,8 @@ function Hack:UpdateLineNums()
 			linetest:SetText(line:gsub("|", "||"))
 			local testwidth = linetest:GetWidth()
 			if testwidth >= width then
-				linetext = linetext .. string.rep("\n", testwidth / width) 
+				linetext = linetext .. string.rep("\n", testwidth / width)
+                                 
 			end
 		end
 	end
@@ -342,10 +343,7 @@ function Hack:UpdateLineNums()
 
         --apply what we've done
 	linebox:SetText(linetext)  
-        
-        --what is the purpose of this?(From WoWLua)
-	--linetest:SetText(text)
-      
+              
 end
 
 
