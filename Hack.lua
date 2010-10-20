@@ -290,10 +290,70 @@ function Hack.UpdateListItems()
       end
    end
 end
+-- Basically got the following from WoWLua
+-- Adding Line Numbers to the EditPage
+function Hack:UpdateLineNums()
+        --could edit it to pass a variable and highlight a line
+	
+
+	-- Since this can be FAIAP enabled, we need to pass true in order
+	-- to get the raw values
+	local editbox = HackEditBox
+	local linebox = HackLineNumEditBoxFrame
+	local linescroll = HackLineNumScrollFrame
+	local linetest = HackEditBox:CreateFontString()
+        linetest:SetFont(Hack.fonts[db.font], db.fontsize)
+
+
+	local width = editbox:GetWidth() 
+	local text = editbox:GetText(true)
+
+	local linetext = ""
+	local count = 1
+	for line in text:gmatch("([^\n]*\n?)") do
+                if #line > 0 then
+                        --will highlight if I ever put it in
+		        --linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
+			linetext = linetext .. count .. "\n"
+			count = count + 1
+
+			-- Check to see if the line of text spans more than one actual line
+			linetest:SetText(line:gsub("|", "||"))
+			local testwidth = linetest:GetWidth()
+			if testwidth >= width then
+				linetext = linetext .. string.rep("\n", testwidth / width) 
+			end
+		end
+	end
+        --what is this doing?
+	if text:sub(-1, -1) == "\n" then
+		linetext = linetext .. count .. "\n"
+		count = count + 1
+	end
+       
+
+
+	-- Make the line number frame wider as necessary
+	local increase = tostring(count):len() * 10
+    print(increase);
+	linescroll:SetWidth(12+increase)
+
+        --apply what we've done
+	linebox:SetText(linetext)  
+	--linetest:SetText(text)
+      
+end
+
+
+
 
 function Hack.UpdateButtons()
    enableButton( HackDelete,   selected )
-   enableButton( HackRename,   selected )
+   enableButton( HackRename,   selected )	local editbox = HackEditBox
+	local linebox = HackLineNumEditBoxFramelocal offset = tostring(count):len() * 10
+	local linetest = HackEditBox:CreateFontString()
+	local linescroll = HackLineNumScrollFrame
+
    enableButton( HackSend,     selected )
    enableButton( HackMoveUp,   selected and selected > 1 )
    enableButton( HackMoveDown, selected and selected < #items )
@@ -447,6 +507,7 @@ end
 
 function Hack.UpdateFont()
    HackEditBox:SetFont(Hack.fonts[db.font], db.fontsize)
+   HackLineNumEditBoxFrame:SetFont(Hack.fonts[db.font], db.fontsize)
 end
 
 function Hack.OnButtonClick(name)
@@ -482,6 +543,7 @@ function Hack.OnEditorTextChanged(self)
    if not HackEditScrollFrameScrollBarThumbTexture:IsVisible() then
       HackEditScrollFrameScrollBar:Hide()
    end
+   Hack.UpdateLineNums();
 end
 
 function Hack.OnEditorShow()

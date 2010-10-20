@@ -238,9 +238,34 @@
          <Anchor point='TOPLEFT' relativePoint='TOPRIGHT' relativeTo='HackListFrame'> <Offset> <AbsDimension x='-2' y='0'/> </Offset> </Anchor>
       </Anchors>
       <Frames>
-         <ScrollFrame name='HackEditScrollFrame' inherits='UIPanelScrollFrameTemplate'>
+        <ScrollFrame name="HackLineNumScrollFrame">
+                <Size>
+	                <AbsDimension x="10"/>
+		</Size>
+	        <Anchors>
+       			<Anchor point="TOPLEFT" relativeTo="HackEditFrame" relativePoint="TOPLEFT">   <Offset> <AbsDimension x='4' y='-26'/> </Offset> </Anchor>				
+       			<Anchor point="BOTTOMLEFT" relativeTo="HackEditFrame" relativePoint="BOTTOMLEFT">  <Offset> <AbsDimension x='4' y='8'/> </Offset> </Anchor>	
+       			
+		</Anchors>
+               	<Layers>
+       			<Layer level="BACKGROUND">
+       				<Texture setAllPoints="true"><Color r=".1" g=".1" b=".1" a="1"/></Texture>
+       			</Layer>
+		</Layers>
+		<ScrollChild>
+			<EditBox name="HackLineNumEditBoxFrame" multiLine="true" maxLines="9999" letters="4096" nonspacewrap="true" spacing="1" autoFocus="false">
+				<Scripts>
+					<OnEditFocusGained>
+						<!--self:ClearFocus() keeps you from being able to type in here at all-->
+					</OnEditFocusGained>
+				</Scripts>
+                         </EditBox>
+        	</ScrollChild>
+        </ScrollFrame>         
+        <ScrollFrame name='HackEditScrollFrame' inherits='UIPanelScrollFrameTemplate'>
+
             <Anchors>
-               <Anchor point='TOPLEFT'>     <Offset> <AbsDimension x=  '6' y='-29'/> </Offset> </Anchor>
+               <Anchor point='TOPLEFT' relativeTo="HackLineNumScrollFrame" relativePoint="TOPRIGHT"/>
                <Anchor point='BOTTOMRIGHT'> <Offset> <AbsDimension x='-29' y= '10'/> </Offset> </Anchor>
             </Anchors>
             <ScrollChild>
