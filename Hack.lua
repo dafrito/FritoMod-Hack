@@ -334,12 +334,16 @@ function Hack:UpdateLineNums()
 
 
 	-- Make the line number frame wider as necessary
-	local increase = tostring(count):len() * 10
-	linescroll:SetWidth(12+increase)
-	linebox:SetWidth(12+increase)
+        linetest:SetText(count)
+	local numwidth = linetest:GetWidth()
+        --always a 3 pixel buffer between the number and the other frame
+	linescroll:SetWidth(3+numwidth)
+	linebox:SetWidth(3+numwidth)
 
         --apply what we've done
 	linebox:SetText(linetext)  
+        
+        --what is the purpose of this?(From WoWLua)
 	--linetest:SetText(text)
       
 end

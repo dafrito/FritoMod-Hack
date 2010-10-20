@@ -240,11 +240,11 @@
       <Frames>
         <ScrollFrame name="HackLineNumScrollFrame">
             <Size>
-                <AbsDimension x="10"/>
+                <AbsDimension x="3"/>
             </Size>
 	        <Anchors>
-       			<Anchor point="TOPLEFT" relativeTo="HackEditFrame" relativePoint="TOPLEFT">   <Offset> <AbsDimension x='4' y='-26'/> </Offset> </Anchor>				
-       			<Anchor point="BOTTOMLEFT" relativeTo="HackEditFrame" relativePoint="BOTTOMLEFT">  <Offset> <AbsDimension x='4' y='8'/> </Offset> </Anchor>	
+       			<Anchor point="TOPLEFT" relativeTo="HackEditFrame" relativePoint="TOPLEFT">   <Offset> <AbsDimension x='4' y='-25'/> </Offset> </Anchor>				
+       			<Anchor point="BOTTOMLEFT" relativeTo="HackEditFrame" relativePoint="BOTTOMLEFT">  <Offset> <AbsDimension x='4' y='7'/> </Offset> </Anchor>	
        			
             </Anchors>
             <Layers>
