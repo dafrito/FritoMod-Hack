@@ -257,7 +257,7 @@
                 <TextInsets> <AbsInset left='0' right='0' top='4' bottom='9'/> </TextInsets>
                     <Scripts>
                         <OnEditFocusGained>
-                            <!--self:ClearFocus() keeps you from being able to type in here at all-->
+                            self:ClearFocus() <!-- prevents us from clicking into this editbox-->
                         </OnEditFocusGained>
                     </Scripts>
                 </EditBox>
