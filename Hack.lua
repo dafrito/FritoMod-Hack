@@ -8,8 +8,8 @@ HackDB = { -- default settings saved variables
    font = 2,
    fontsize = 11,
    snap = 1,
-   book = 1,
-   books = { { name = 'empty book', data = { } }, },
+	pages = { untitled = {name = "untitled", data='',index=1,} },
+	order = {"untitled"} --list that the index points to the page name
 }
 
 Hack = {
@@ -53,6 +53,60 @@ BINDING_HEADER_HACK = 'Hack'  -- used by binding system
 
 local PLAYERNAME = GetUnitName('player')
 
+function Hack.Upgrade()
+local maxVersion = "1.2.0"
+if HackDB.version and maxVersion == HackDB.version then return end -- don't need to load tables and shit if not needed
+	-- all upgrades need to use functions and variables found only within that upgrade
+	-- saved variables will have to be used; that is kind of the point of this
+	local upgrades = {
+		["1.1.0"] = function(self) -- from
+			if not HackDB.books then HackDB.version = "1.2.0" return end-- maybe they have deleted all their saved vars.
+			if not HackDB.order then HackDB.order = {} end -- thought this was taken care of in the default stuff above?
+			if not HackDB.pages then HackDB.pages = {} end
+			local pages, order = {},{}
+			for _,book in ipairs(HackDB.books) do
+				for _,page in ipairs(book.data) do
+					if not pages[page.name] then -- don't want to overwrite anything
+						pages[page.name] = page -- table[''] is valid!
+						table.insert(order, page.name)
+						pages[page.name].index = #order
+					else
+   					for i=2,#order+2 do -- first copy is name(2) etc,maybe all things are the same name!
+							if not pages[page.name..'('..i..')'] then
+								local n = page.name..'('..i..')'
+		   	   			pages[n] = page
+								table.insert(order,n)
+								pages[n].index = #order
+		   	   			break
+		   				end
+						end
+					end
+				end
+			end
+			table.wipe(HackDB.books)
+			HackDB.pages = pages
+			HackDB.order = order
+			HackDB.version = "1.2.0" -- to
+		end,
+	}
+
+	if not HackDB.version then
+		HackDB.version = "1.1.0"
+	end
+	while HackDB.version ~= maxVersion do
+		local tempVersion = HackDB.version -- preventing nub infinite loop
+
+		if upgrades[HackDB.version] then
+			upgrades[HackDB.version]()
+			if tempVersion == HackDB.version then
+				error("Continuously trying to upgrade from "..HackDB.version)
+			end
+		else
+			error("Can't upgrade from "..HackDB.version)
+		end
+	end
+end
+
 StaticPopupDialogs.HackAccept = {
    text = 'Accept new Hack page from %s?', button1 = 'Yes', button2 = 'No',
    timeout = 0, whileDead = 1, hideOnEscape = 1,
@@ -85,24 +139,22 @@ StaticPopupDialogs.HackDelete = {
 }
 
 local db -- alias for HackDB
-local items -- alias for HackDB.books[HackDB.book].data
-local mode = 'page' -- 'page' or 'book'
+local pages -- alias for HackDB.pages
+local order -- alias for HackDB.order
 local selected = nil -- index of selected list item
 
 local function printf(...) DEFAULT_CHAT_FRAME:AddMessage('|cffff6600<Hack>: '..format(...)) end
 local function getobj(...) return getglobal(format(...)) end
 local function enableButton(b,e) if e then HackNew.Enable(b) else HackNew.Disable(b) end end
 
-function Hack.Find(pattern) -- search books for a page by name
-   for _,book in pairs(HackDB.books) do
-      for _,page in pairs(book.data) do
-         if page.name:match(pattern) then
-            return page
-         end
-      end
-   end
+-- finds the page for the index
+function Hack.Find(index)
+	if order[index] then
+		return pages[order[index]]
+	end
 end
 
+-- Thonik: Update to highlight line Num?
 function Hack.ScriptError(type, err)
    local name, line, msg = err:match('%[string (".-")%]:(%d+): (.*)')
    printf( '%s error%s:\n %s', type,
@@ -117,8 +169,8 @@ function Hack.Compile(page)
 end
 
 -- find page by index or name and return it as a compiled function
-function Hack.Get(index)
-   local page = type(index)=='string' and Hack.Find(index) or items[index]
+function Hack.Get(name)
+   local page = type(name)=='number' and Hack.Find(name) or pages[name]
    if not page then printf('attempt to get an invalid page') return end
    return Hack.Compile(page)
 end
@@ -137,6 +189,7 @@ function Hack.Run(index, ...)
    return Hack.Execute( Hack.Get(index or selected), ... )
 end
 
+-- Thonik: Don't fully understand
 do
    local loaded = {}
    -- similar to Lua 'require': loads a page if not already loaded
@@ -148,12 +201,11 @@ do
    end
 end
 
+
 function Hack.DoAutorun()
-   for i,book in pairs(HackDB.books) do
-      for i,page in pairs(book.data) do
-         if page.autorun then 
-            Hack.Execute( Hack.Compile(page) )
-         end
+   for _,page in pairs(pages) do
+   	if page.autorun then 
+      	Hack.Execute( Hack.Compile(page) )
       end
    end
 end
@@ -168,10 +220,13 @@ function Hack.OnLoad(self)
    end
 
    -- users can delete HackExamples.lua to avoid loading them
+	-- Thonik: Frito needs to look at this, atm not loading them
+--[[
    if HackExamples then
       table.insert( HackDB.books, 1, HackExamples.examplebook )
       setmetatable( HackExamples, { __mode='kv' } ) -- let examplebook be collected
    end
+--]]
 
    self:RegisterEvent('VARIABLES_LOADED')
    self:RegisterEvent('CHAT_MSG_ADDON')
@@ -193,8 +248,10 @@ function Hack.OnLoad(self)
 end
 
 function Hack.VARIABLES_LOADED(self)
-   db = HackDB
-   items = db.books[db.book].data
+	Hack.Upgrade()   
+	db = HackDB
+   pages = db.pages
+	order = db.order
    Hack.UpdateFont()
    Hack.UpdateButtons()
    Hack.UpdateSearchContext()
@@ -208,34 +265,10 @@ function Hack.VARIABLES_LOADED(self)
    Hack.DoAutorun()
 end
 
--- switch between viewing books vs pages
-function Hack.SetMode(newmode)
-   mode = newmode
-   if mode == 'page' then
-      db.book = math.min(db.book, #db.books)
-      items = db.books[db.book].data
-      selected = nil
-      HackSearchBody:Show()
-      HackSend:Show()
-   else -- 'book'
-      items = db.books
-      selected = db.book
-      HackSearchBody:Hide()
-      HackEditFrame:Hide()
-      HackSend:Hide()
-   end
-   Hack.UpdateButtons() 
-   Hack.UpdateListItems()
-end
-
 function Hack.SelectListItem(index)
    selected = index
    Hack.UpdateButtons() 
-   if mode == 'page' then
-      Hack.EditPage()
-   else -- 'book'
-      db.book = index
-   end
+   Hack.EditPage()
 end
 
 local function ListItemClickCommon(id, op)
@@ -249,7 +282,7 @@ function Hack.OnListItemClicked(id)
 end
 
 function Hack.OnListItemAutorunClicked(id, enable)
-   ListItemClickCommon(id, function(selected) items[selected].autorun = enable end)
+   ListItemClickCommon(id, function(selected) pages[order[selected]].autorun = enable end)
 end
 
 function Hack.UpdateNumListItemsVisible()
@@ -260,12 +293,13 @@ end
 
 function Hack.UpdateListItems()
    local scrollFrameWidth = HackListFrame:GetWidth() - 18 -- N = inset from right edge
-   FauxScrollFrame_Update(HackListScrollFrame, #items, Hack.NumVisible, Hack.ListItemHeight, 
+
+   FauxScrollFrame_Update(HackListScrollFrame, #order, Hack.NumVisible, Hack.ListItemHeight, 
       nil, nil, nil, HackListScrollFrame, scrollFrameWidth-17, scrollFrameWidth) -- N = room for scrollbar
    local offset = FauxScrollFrame_GetOffset(HackListScrollFrame)
    for widgetIndex=1, Hack.MaxVisible do
       local itemIndex = offset + widgetIndex
-      local item = items[itemIndex]
+      local item = pages[order[itemIndex]]
       local widget = getobj('HackListItem%d', widgetIndex)
       if not item or widgetIndex > Hack.NumVisible then
          widget:Hide()
@@ -275,21 +309,17 @@ function Hack.UpdateListItems()
          local edit = getobj('HackListItem%dEdit', widgetIndex)
          local auto = getobj('HackListItem%dAutorun', widgetIndex)
          edit:ClearFocus() -- in case someone tries to scroll while renaming
-         if Hack.SearchMatch(item) then
+        	if Hack.SearchMatch(item) then
             name:SetTextColor(1,1,1) else name:SetTextColor(.3,.3,.3) end
          if itemIndex == selected then 
             widget:LockHighlight() else widget:UnlockHighlight() end
-         if mode == 'page' then 
-            auto:Show()
-            name:SetText(item.name)
-            auto:SetChecked(item.autorun)
-         else
-            auto:Hide()
-            name:SetText(format('%s |cFF888888(%d pages)', item.name, #item.data))
-         end
-      end
+         auto:Show()
+         name:SetText(item.name)
+         auto:SetChecked(item.autorun)
+	   end
    end
 end
+
 -- Basically got the following from WoWLua
 -- Adding Line Numbers to the EditPage
 function Hack:UpdateLineNums()
@@ -337,7 +367,7 @@ function Hack:UpdateLineNums()
 	-- Make the line number frame wider as necessary
         linetest:SetText(count)
 	local numwidth = linetest:GetWidth()
-    --always a 3 pixel buffer between the number and the other frame
+    --always a 3 pixel buffer between the number and the main editbox
 	linescroll:SetWidth(3+numwidth)
 	linebox:SetWidth(3+numwidth)
 
@@ -354,7 +384,7 @@ function Hack.UpdateButtons()
    enableButton( HackRename,   selected )	
    enableButton( HackSend,     selected )
    enableButton( HackMoveUp,   selected and selected > 1 )
-   enableButton( HackMoveDown, selected and selected < #items )
+   enableButton( HackMoveDown, selected and selected < #order )
 end
 
 function Hack.UpdateSearchContext()
@@ -364,22 +394,22 @@ function Hack.UpdateSearchContext()
    local nx, bx = HackSearchName:GetChecked(), HackSearchBody:GetChecked()
    function Hack.SearchMatch(item)
       return not (nx or bx)
-             or (                   nx and item.name:match(pattern))
-             or (mode == 'page' and bx and item.data:match(pattern))
+             or (nx and item.name:match(pattern))-- searching names
+             or (bx and item.data:match(pattern)) -- searching inside pages
    end
    Hack.UpdateListItems()
 end
 
 function Hack.DoSearch(direction) -- 1=down, -1=up
-   if #items == 0 then return end
+   if #order == 0 then return end
    local start = selected or 1
    local it = start
    repeat
       it = it + direction
-      if     it > #items then it = 1 -- wrap at..
-      elseif it < 1 then it = #items --   ..either end
+      if     it > #order then it = 1 -- wrap at..
+      elseif it < 1 then it = #order --   ..either end
       end
-      if Hack.SearchMatch(items[it]) then
+      if Hack.SearchMatch(order[it]) then
          Hack.SelectListItem(it)
          Hack.ScrollSelectedIntoView()
          HackSearchEdit:SetFocus()
@@ -410,17 +440,29 @@ function Hack.Tooltip(self)
    local which = self:GetName()
    local tip = which:match('Autorun') 
       and 'Automatically run this page when Hack loads'
-      or format(Hack.tooltips[which], mode)
+      or format(Hack.tooltips[which], "page")
    GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
    GameTooltip:AddLine(tip)
    GameTooltip:Show()
+end
+
+function Hack.GetUniqueName(name)
+	if not pages[name] then 
+		return name
+	else
+		for i=2,#order+2 do --+1 for starting at 2; +1 for making sure we get a hit; could probably do a while loop
+   		if not pages[name..'('..i..')'] then
+   			return name..'('..i..')' 
+  			end
+		end
+	end
 end
 
 function Hack.Rename()
    local id = selected - FauxScrollFrame_GetOffset(HackListScrollFrame)
    local name = getobj("HackListItem%dName", id)
    local edit = getobj("HackListItem%dEdit", id)
-   edit:SetText( items[selected].name )
+   edit:SetText( pages[order[selected]].name )
    edit:Show()
    edit:SetCursorPosition(0)
    edit:SetFocus()
@@ -428,15 +470,26 @@ function Hack.Rename()
 end
 
 function Hack.FinishRename(name, editbox)
-   items[selected].name = name
-   Hack.UpdateListItems()
+	name = Hack.GetUniqueName(name)
+	pages[name] = pages[order[selected]]
+	pages[name].name = name 
+	pages[order[selected]] = nil  --its happening
+	order[selected] = name
+	Hack.UpdateListItems()
 end
 
 function Hack.New(page)
-   local index = #items+1 --thonik: selected or #items+1 to current -- makes all new pages start at end
-   local data = (mode == 'page') and '' or {}
-   page = page or { name='', data=data }
-   table.insert(items, index, page)
+   local index = #order+1 
+  	if page then
+		page.name = Hack.GetUniqueName(page.name)
+	else
+		page = {name = Hack.GetUniqueName(''), data='' }
+	end
+	
+	pages[page.name] = page
+   table.insert(order, index, page.name) -- index var is unecessary, but leaving for future changes
+	pages[page.name].index = #order
+
    Hack.SelectListItem(index)
    Hack.UpdateListItems()
    Hack.ScrollSelectedIntoView()
@@ -444,20 +497,19 @@ function Hack.New(page)
 end
 
 function Hack.Delete()
-   if mode == 'book' and #items == 1 then
-      printf('You cannot delete the last %s!', mode)
-   elseif IsShiftKeyDown() or #items[selected].data == 0 then
+   if IsShiftKeyDown() or #pages[order[selected]].data == 0 then
       Hack.DeleteSelected()
    else
-      StaticPopup_Show('HackDelete', mode)
+      StaticPopup_Show('HackDelete', "page")
    end
 end
 
 function Hack.DeleteSelected()
    HackEditFrame:Hide()
-   table.remove(items,selected)
-   if #items == 0 then selected = nil
-   elseif selected > #items then selected = #items end
+	pages[order[selected]] = nil
+   table.remove(order,selected)
+   if #order == 0 then selected = nil
+   elseif selected > #order then selected = #order end
    Hack.UpdateButtons()
    Hack.UpdateListItems()
 end
@@ -470,12 +522,15 @@ end
 
 function Hack.MoveItem(direction)
    local to = selected + direction * (IsShiftKeyDown() and 5 or 1)
-   if     to > #items then to = #items
+   if     to > #order then to = #order
    elseif to < 1      then to = 1      end
    while selected ~= to do
-      items[selected], items[selected+direction] = items[selected+direction], items[selected]
+      order[selected], order[selected+direction] = order[selected+direction], order[selected]
       selected = selected + direction
    end
+	for i=1,#order do
+		pages[order[i]].index = i --updating the index property of the pages
+	end
    Hack.ScrollSelectedIntoView()
    Hack.UpdateButtons()
 end
@@ -522,8 +577,8 @@ function Hack.ApplyColor(colorize)
 end
 
 function Hack.EditPage()
-   local page = items[selected]
-   Hack.revert = page.data
+   local page = pages[order[selected]]
+	Hack.revert = page.data
    HackEditBox:SetText(page.data)
    HackRevert:Disable()
    HackEditFrame:Show()
@@ -535,7 +590,7 @@ function Hack.EditPage()
 end
 
 function Hack.OnEditorTextChanged(self)
-   local page = items[selected]
+   local page = pages[order[selected]]
    page.data = self:GetText() 
    enableButton(HackRevert, page.data ~= Hack.revert)
    if not HackEditScrollFrameScrollBarThumbTexture:IsVisible() then
@@ -568,18 +623,18 @@ function Hack.Snap()
 end
 
 function Hack.Colorize()
-   local page = items[selected]
+   local page = pages[order[selected]]
    page.colorize = HackColorize:GetChecked()
    Hack.ApplyColor(page.colorize)
 end
-
+--Thonik: This whole send/receive stuff is voodoo
 do
-   local function send(self) Hack.SendPage(items[selected], self.value) end
+   local function send(self) Hack.SendPage(pages[order[selected]], self.value) end
    local menu = {
       { text = 'Player', func = function()
             local dialog = StaticPopup_Show('HackSendTo')
             if dialog then 
-               dialog.page = items[selected] 
+               dialog.page = pages[order[selected]] 
                dialog.editBox:SetScript('OnEnterPressed',  function(t) dialog.button1:Click() end)
             end
          end
@@ -599,10 +654,9 @@ do
 end
 
 function Hack.SendPage(page, channel, name)
-   local id = 'Hack'..tostring(time())
-   local chunksize = 254 - #id
-   local pagename = format('%s [from %s on %s]', page.name, PLAYERNAME, date())
-   SendAddonMessage(id, pagename, channel, name)
+   local id = 'Hack'..tostring(time()) --Thonik: wut?
+   local chunksize = 254 - #id -- do not get
+   SendAddonMessage(id, page.name, channel, name) --currently just straight up overwrites the receiver(sendee imo)
    for i=1,#page.data,chunksize do
       SendAddonMessage(id, page.data:sub(i,i+chunksize-1), channel, name)
    end
@@ -625,7 +679,7 @@ do -- receive page
       elseif #body > 1 then -- append to page body
          table.insert(receiving[id].data, body)
       else -- page end
-         local page = { name=receiving[id].name, data=table.concat(receiving[id].data) }
+         local page = { name=Hack.GetUniqueName(receiving[id].name), data=table.concat(receiving[id].data) }
          receiving[id] = nil
          local dialog = StaticPopup_Show('HackAccept', sender)
          if dialog then 

@@ -1,4 +1,10 @@
-Version Key: Major Change. Minor Change. Tiny Change. Thonik Change
+Version Key: Major Change. Minor Change. 
+
+1.2.0
+BACKUP SAVED VARS. No longer using books, changed the style of page saving to a map instead of a list. 
+
+1.1.0
+Went to better version numbers. Made the edit page have line numbers and improved word wrapping.
 
 1.0.0.2
 Replaced the (un)tiled background with a solid black one.
@@ -7,6 +13,4 @@ Replaced the (un)tiled background with a solid black one.
 New hack pages will be created at the end of the current book instead of next to your current selection.
 
 1.0.0.0
-No Time adopted Hack 1.2 by Mud and made working in WoW 4.0. Using new superior version numbers.
-
-
+No Time adopted Hack 1.2 by Mud and made working in WoW 4.0.

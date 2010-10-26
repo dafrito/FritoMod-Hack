@@ -1,9 +1,8 @@
 ## Interface: 40000
 ## Title: Hack
-## Version: 1.0.0.2
+## Version: 1.2.0
 ## Notes: Notebook / coding framework.
-## Original Author: Mud, aka Eric Tetz <erictetz@gmail.com>
-## Adopted by: Frito, Thonik  (*<)+ + + + + + + {**} + {**} + + AND PACMAN!
+## Author: Mud(Original), Frito, Thonik
 ## SavedVariables: HackDB
 HackExamples.lua
 Hack.lua

@@ -209,19 +209,11 @@
 
          <Button name='HackListItem1'  inherits='T_HackListItem' id= '1'> <Anchors> <Anchor point='TOP' relativeTo='HackListScrollFrame'/> </Anchors> </Button>
          <!-- remaining list items are instantiated during OnLoad -->
-
-         <Button name='$parentTab1' inherits='CharacterFrameTabButtonTemplate' id='1' text='pages'>
-            <Anchors> <Anchor point='CENTER' relativePoint='BOTTOMLEFT'> <Offset> <AbsDimension x='52' y='-13'/> </Offset> </Anchor> </Anchors>
-            <Scripts> <OnClick> PanelTemplates_SetTab(HackListFrame,1) Hack.SetMode('page') </OnClick> </Scripts> </Button>
-         <Button name='$parentTab2' inherits='CharacterFrameTabButtonTemplate' id='2' text='books'>
-            <Anchors> <Anchor point='LEFT' relativeTo='$parentTab1' relativePoint='RIGHT'> <Offset> <AbsDimension x='-16' y='0'/> </Offset> </Anchor> </Anchors>
-            <Scripts> <OnClick> PanelTemplates_SetTab(HackListFrame,2) Hack.SetMode('book') </OnClick> </Scripts> </Button>
+     
       </Frames>
       <Scripts>
          <OnLoad>
             Hack.OnLoad(self)
-            PanelTemplates_SetNumTabs(HackListFrame, 2) 
-            PanelTemplates_SetTab(HackListFrame, 1)
          </OnLoad>
          <OnShow> PlaySound('igSpellBookOpen') </OnShow>
          <OnHide> PlaySound('igSpellBookClose') </OnHide>
