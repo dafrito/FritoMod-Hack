@@ -74,7 +74,8 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
    					for i=2,#order+2 do -- first copy is name(2) etc,maybe all things are the same name!
 							if not pages[page.name..'('..i..')'] then
 								local n = page.name..'('..i..')'
-		   	   			pages[n] = page
+   	   					pages[n] = page
+								pages[n].name = n
 								table.insert(order,n)
 								pages[n].index = #order
 		   	   			break
@@ -83,7 +84,8 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
 					end
 				end
 			end
-			table.wipe(HackDB.books)
+			HackDB.books = nil 
+			HackDB.book = nil
 			HackDB.pages = pages
 			HackDB.order = order
 			HackDB.version = "1.2.0" -- to
