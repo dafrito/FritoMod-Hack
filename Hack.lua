@@ -113,7 +113,7 @@ StaticPopupDialogs.HackAccept = {
    text = 'Accept new Hack page from %s?', button1 = 'Yes', button2 = 'No',
    timeout = 0, whileDead = 1, hideOnEscape = 1,
    OnAccept = function(self)
-      Hack.New(self.page)
+      Hack.New(self.page, true) -- all received pages start at end of list
       SendAddonMessage('HackAck', PLAYERNAME, 'WHISPER', self.sender)
    end,
    OnCancel = function(self)
@@ -212,6 +212,19 @@ function Hack.DoAutorun()
    end
 end
 
+function Hack.GetUniqueName(name)
+
+	if not pages[name] then 
+		return name
+	else
+		for i=2,#order+2 do --+1 for starting at 2; +1 for making sure we get a hit; could probably do a while loop
+   		if not pages[name..'('..i..')'] then
+   			return name..'('..i..')' 
+  			end
+		end
+	end
+end
+
 function Hack.OnLoad(self)
    -- instantiate list items
    local name = 'HackListItem'
@@ -220,13 +233,19 @@ function Hack.OnLoad(self)
       li:SetPoint('TOP', name..(i-1), 'BOTTOM') 
       li:SetID(i)
    end
-
-   -- users can delete HackExamples.lua to avoid loading them
-	-- Thonik: Frito needs to look at this, atm not loading them
+-- this bugged out because it didn't know what pages was
+-- pages is assigned after VARIABLES_LOADED
+-- how can we do this if we don't have access to the variables?
+-- keeping out of the code for now
 --[[
-   if HackExamples then
-      table.insert( HackDB.books, 1, HackExamples.examplebook )
-      setmetatable( HackExamples, { __mode='kv' } ) -- let examplebook be collected
+   -- users can delete HackExamples.lua to avoid loading them
+	if HackExamples then
+		for _,oldPage in pairs(HackExamples) do
+			local name = Hack.GetUniqueName(oldPage.name)
+			pages[name] = oldPage
+			table.insert(order, name)
+			pages[name].index = #order
+		end
    end
 --]]
 
@@ -448,17 +467,6 @@ function Hack.Tooltip(self)
    GameTooltip:Show()
 end
 
-function Hack.GetUniqueName(name)
-	if not pages[name] then 
-		return name
-	else
-		for i=2,#order+2 do --+1 for starting at 2; +1 for making sure we get a hit; could probably do a while loop
-   		if not pages[name..'('..i..')'] then
-   			return name..'('..i..')' 
-  			end
-		end
-	end
-end
 
 function Hack.Rename()
    local id = selected - FauxScrollFrame_GetOffset(HackListScrollFrame)
@@ -480,8 +488,8 @@ function Hack.FinishRename(name, editbox)
 	Hack.UpdateListItems()
 end
 
-function Hack.New(page)
-   local index = #order+1 
+function Hack.New(page, atEnd) 
+	local index = (atEnd and #order+1) or  selected+1
   	if page then
 		page.name = Hack.GetUniqueName(page.name)
 	else
@@ -489,7 +497,7 @@ function Hack.New(page)
 	end
 	
 	pages[page.name] = page
-   table.insert(order, index, page.name) -- index var is unecessary, but leaving for future changes
+   table.insert(order, index, page.name) 
 	pages[page.name].index = #order
 
    Hack.SelectListItem(index)
@@ -629,7 +637,7 @@ function Hack.Colorize()
    page.colorize = HackColorize:GetChecked()
    Hack.ApplyColor(page.colorize)
 end
---Thonik: This whole send/receive stuff is voodoo
+
 do
    local function send(self) Hack.SendPage(pages[order[selected]], self.value) end
    local menu = {
@@ -668,7 +676,7 @@ end
 do -- receive page
    local receiving = {}
    function Hack.CHAT_MSG_ADDON(msg, prefix, body, channel, sender)
-      if sender == PLAYERNAME then return end
+     	if sender == PLAYERNAME then return end
       local id = prefix:match('Hack(.*)')
       if not id then
          return -- message not for Hack
