@@ -850,12 +850,62 @@ local GetTime = GetTime
 local editboxSetText
 local editboxGetText
 
+ -- Removed Hack's custom function to get rid of the newline issues
 function lib.stripWowColors(code)
-   code = stringgsub(code, '||','\1')
-   code = stringgsub(code, '|c%x%x%x%x%x%x%x%x','')
-   code = stringgsub(code, '|r','')
-   code = stringgsub(code, '\1', '||')
-   return code
+
+	-- HACK!
+	-- This is a fix for a bug, where an unfinished string causes a lot of newlines to be created.
+	-- The reason for the bug, is that a |r\n\n gets converted to \n\n|r after the next indent-run
+	-- The fix is to remove those last two linebreaks when stripping
+	code = stringgsub(code, "|r\n\n$", "|r")
+	
+	tableclear(workingTable)
+	local tsize = 0
+
+	local pos = 1
+
+	local prevVertical = false
+	local even = true
+	local selectionStart = 1
+
+	while true do
+		local byte = stringbyte(code, pos)
+		if not byte then
+			break
+		end
+		if byte == BYTE_VERTICAL then
+			even = not even
+			prevVertical = true
+		else
+			if prevVertical and not even then
+				if byte == BYTE_c then
+					
+					if pos - 2 >= selectionStart then
+						tsize = tsize + 1
+						workingTable[tsize] = stringsub(code, selectionStart, pos - 2)
+					end
+					
+					pos = pos + 8
+					selectionStart = pos + 1
+				elseif byte == BYTE_r then
+
+					if pos - 2 >= selectionStart then
+						tsize = tsize + 1
+						workingTable[tsize] = stringsub(code, selectionStart, pos - 2)
+					end
+					selectionStart = pos + 1
+				end
+			end
+			prevVertical = false
+			even = true
+		end
+		pos = pos + 1
+	end
+	if pos >= selectionStart then
+		tsize = tsize + 1
+		workingTable[tsize] = stringsub(code, selectionStart, pos - 1)
+	end
+	return table.concat(workingTable)
 end
 
 function lib.stripWowColorsWithPos(code, pos)
