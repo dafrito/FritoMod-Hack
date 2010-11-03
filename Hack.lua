@@ -9,7 +9,8 @@ HackDB = { -- default settings saved variables
    fontsize = 11,
    snap = 1,
 	pages = { untitled = {name = "untitled", data='',index=1,} },
-	order = {"untitled"} --list that the index points to the page name
+	order = {"untitled"}, --list that the index points to the page name
+	colorTable = 1
 }
 
 Hack = {
@@ -39,6 +40,10 @@ Hack = {
       'Fonts\\FRIZQT__.TTF',
       'Fonts\\ARIALN.TTF',
    },
+	colorTables = { -- found in Indent.lua
+		HackIndent.hackColorTable,
+		HackIndent.defaultColorTable,
+	},
    tab = '    ',
    ListItemHeight =  17, -- used in the XML, too
    ListVOffset    =  37, -- vertical space not available for list items
@@ -54,7 +59,7 @@ BINDING_HEADER_HACK = 'Hack'  -- used by binding system
 local PLAYERNAME = GetUnitName('player')
 
 function Hack.Upgrade()
-local maxVersion = "1.2.0"
+local maxVersion = "1.2.1"
 if HackDB.version and maxVersion == HackDB.version then return end -- don't need to load tables and shit if not needed
 	-- all upgrades need to use functions and variables found only within that upgrade
 	-- saved variables will have to be used; that is kind of the point of this
@@ -90,6 +95,10 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
 			HackDB.order = order
 			HackDB.version = "1.2.0" -- to
 		end,
+		["1.2.0"] = function(self)
+			if not HackDB.colorTable then HackDB.colorTable = 1 end
+		HackDB.version = "1.2.1"
+		end
 	}
 
 	if not HackDB.version then
@@ -233,21 +242,6 @@ function Hack.OnLoad(self)
       li:SetPoint('TOP', name..(i-1), 'BOTTOM') 
       li:SetID(i)
    end
--- this bugged out because it didn't know what pages was
--- pages is assigned after VARIABLES_LOADED
--- how can we do this if we don't have access to the variables?
--- keeping out of the code for now
---[[
-   -- users can delete HackExamples.lua to avoid loading them
-	if HackExamples then
-		for _,oldPage in pairs(HackExamples) do
-			local name = Hack.GetUniqueName(oldPage.name)
-			pages[name] = oldPage
-			table.insert(order, name)
-			pages[name].index = #order
-		end
-   end
---]]
 
    self:RegisterEvent('VARIABLES_LOADED')
    self:RegisterEvent('CHAT_MSG_ADDON')
@@ -567,6 +561,11 @@ function Hack.FontCycle()
    db.font = (db.font < #Hack.fonts) and (db.font + 1) or (1)
    Hack.UpdateFont()
 end
+-- currently unattached to any in-game config
+function Hack.ColorTableCycle()
+	db.colorTable = (db.colorTable < #Hack.colorTables) and (db.colorTable+1) or (1)
+	Hack.ApplyColor(true)
+end
 
 function Hack.UpdateFont()
    HackEditBox:SetFont(Hack.fonts[db.font], db.fontsize)
@@ -579,10 +578,10 @@ end
 
 function Hack.ApplyColor(colorize)
    if colorize then
-      HackIndent.enable(HackEditBox, 3)
+		HackIndent.enable(HackEditBox,Hack.colorTables[db.colorTable], 3)
       HackIndent.colorCodeEditbox(HackEditBox)
    else
-      HackIndent.disable(HackEditBox, 3)
+      HackIndent.disable(HackEditBox)
    end
 end
 

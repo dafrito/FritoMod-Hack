@@ -1,4 +1,6 @@
 Version Key: Major Change. Minor Change. 
+1.2.1
+Fixed a few bugs and made an enabled an alternate to the hack lua syntaxing color scheme.
 
 1.2.0
 BACKUP SAVED VARS. No longer using books, changed the style of page saving to a map instead of a list. 
