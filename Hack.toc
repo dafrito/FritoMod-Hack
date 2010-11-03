@@ -5,7 +5,6 @@
 ## Author: Mud(Original), Frito, Thonik
 ## SavedVariables: HackDB
 Indent.lua
-HackExamples.lua
 Hack.lua
 Hack.xml
 

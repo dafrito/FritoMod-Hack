@@ -901,7 +901,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
    end
    -- end of caret code
 
-   function lib.stripWowColors(code)
+function lib.stripWowColors(code)
 
       -- HACK!
       -- This is a fix for a bug, where an unfinished string causes a lot of newlines to be created.
@@ -909,54 +909,54 @@ if not HackIndent.revision or revision > HackIndent.revision then
       -- The fix is to remove those last two linebreaks when stripping
       code = stringgsub(code, "|r\n\n$", "|r")
       
-      tableclear(workingTable)
-      local tsize = 0
+	tableclear(workingTable)
+	local tsize = 0
 
-      local pos = 1
+	local pos = 1
 
-      local prevVertical = false
-      local even = true
-      local selectionStart = 1
+   local prevVertical = false
+   local even = true
+   local selectionStart = 1
 
-      while true do
-	 local byte = stringbyte(code, pos)
-	 if not byte then
-	    break
-	 end
-	 if byte == bytes.BYTE_VERTICAL then
-	    even = not even
-	    prevVertical = true
-	 else
-	    if prevVertical and not even then
-	       if byte == bytes.BYTE_c then
-		  
-		  if pos - 2 >= selectionStart then
-		     tsize = tsize + 1
-		     workingTable[tsize] = stringsub(code, selectionStart, pos - 2)
-		  end
-	       
-		  pos = pos + 8
-		  selectionStart = pos + 1
-	       elseif byte == bytes.BYTE_r then
+	while true do
+		local byte = stringbyte(code, pos)
+		if not byte then
+			 break
+		end
+		if byte == bytes.BYTE_VERTICAL then
+			even = not even
+			prevVertical = true
+		else
+			if prevVertical and not even then
+				if byte == bytes.BYTE_c then
+	
+					if pos - 2 >= selectionStart then
+						tsize = tsize + 1
+						workingTable[tsize] = stringsub(code, selectionStart, pos - 2)
+					end
 
-		  if pos - 2 >= selectionStart then
-		     tsize = tsize + 1
-		     workingTable[tsize] = stringsub(code, selectionStart, pos - 2)
-		  end
-		  selectionStart = pos + 1
-	       end
-	    end
-	    prevVertical = false
-	    even = true
-	 end
-	 pos = pos + 1
-      end
-      if pos >= selectionStart then
-	 tsize = tsize + 1
-	 workingTable[tsize] = stringsub(code, selectionStart, pos - 1)
-      end
-      return table.concat(workingTable)
-   end
+					pos = pos + 8
+					selectionStart = pos + 1
+				elseif byte == bytes.BYTE_r then
+
+					if pos - 2 >= selectionStart then
+						tsize = tsize + 1
+						workingTable[tsize] = stringsub(code, selectionStart, pos - 2)
+					end
+					selectionStart = pos + 1
+				end
+			end
+			prevVertical = false
+			even = true
+		end
+		 pos = pos + 1
+		end
+			if pos >= selectionStart then
+		 tsize = tsize + 1
+		 workingTable[tsize] = stringsub(code, selectionStart, pos - 1)
+	end
+	return table.concat(workingTable)
+end
 
    function lib.decode(code)
       if code then
@@ -979,20 +979,6 @@ if not HackIndent.revision or revision > HackIndent.revision then
       pos = stringfind(code, "\2", 1, 1)
       code = stringdelete(code, pos, pos)
       return code, pos
-   end
-
-   -- returns the padded code, and true if modified, false if unmodified
-   local linebreak = stringbyte("\n")
-   function lib.padWithLinebreaks(code)
-      local len = stringlen(code)
-      if stringbyte(code, len) == linebreak then
-         if stringbyte(code, len - 1) == linebreak then
-            return code, false
-         end
-         return code .. "\n", true
-      end
-      return code .. "\n\n", true
-
    end
 
    local defaultTabWidth = 2
@@ -1028,7 +1014,6 @@ if not HackIndent.revision or revision > HackIndent.revision then
       colorTable[0] = "|r"
       
       local newCode, newPos, numLines = lib.colorCodeCode(code, colorTable, pos)
-      newCode = lib.padWithLinebreaks(newCode)
 
       editboxStringCache[editbox] = newCode
       if orgCode ~= newCode then
@@ -1071,7 +1056,6 @@ if not HackIndent.revision or revision > HackIndent.revision then
 
       colorTable[0] = "|r"
       local newCode, newPos = lib.indentCode(code, tabWidth, colorTable, pos)
-      newCode = lib.padWithLinebreaks(newCode)
       editboxIndentCache[editbox] = newCode
       if code ~= newCode then
 	 local script, script2 = critical_enter(editbox)
@@ -1237,6 +1221,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
       editboxNumLinesCache[editbox] = nil
    end
 
+-- default color scheme of FAIAP
    local defaultColorTable = {}
    lib.defaultColorTable = defaultColorTable
    defaultColorTable[tokens.TOKEN_SPECIAL] = "|c00ff99ff"
@@ -1277,7 +1262,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
    
    defaultColorTable[0] = "|r"
 
-	-- Hack color scheme
+	-- color scheme used by Hack
 	local hackColorTable = { [0] = '|r' }
 	lib.hackColorTable = hackColorTable
 	local function set(color, ...)

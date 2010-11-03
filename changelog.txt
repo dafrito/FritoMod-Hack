@@ -1,4 +1,8 @@
 Version Key: Major Change. Minor Change. 
+
+1.2.2
+Further removed all new lines being created upon using syntaxed code.
+
 1.2.1
 Fixed a few bugs and made an enabled an alternate to the hack lua syntaxing color scheme.
 
