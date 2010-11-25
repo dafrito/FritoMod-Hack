@@ -8,9 +8,9 @@ HackDB = { -- default settings saved variables
    font = 2,
    fontsize = 11,
    snap = 1,
-	pages = { untitled = {name = "untitled", data='',index=1,} },
-	order = {"untitled"}, --list that the index points to the page name
-	colorTable = 1
+   pages = { untitled = {name = "untitled", data='',index=1,} },
+   order = {"untitled"}, --list that the index points to the page name
+   colorTable = 1
 }
 
 Hack = {
@@ -40,10 +40,10 @@ Hack = {
       'Fonts\\FRIZQT__.TTF',
       'Fonts\\ARIALN.TTF',
    },
-	colorTables = { -- found in Indent.lua
-		HackIndent.hackColorTable,
-		HackIndent.defaultColorTable,
-	},
+   colorTables = { -- found in Indent.lua
+      HackIndent.hackColorTable,
+      HackIndent.defaultColorTable,
+   },
    tab = '    ',
    ListItemHeight =  17, -- used in the XML, too
    ListVOffset    =  37, -- vertical space not available for list items
@@ -61,61 +61,61 @@ local PLAYERNAME = GetUnitName('player')
 function Hack.Upgrade()
 local maxVersion = "1.2.1"
 if HackDB.version and maxVersion == HackDB.version then return end -- don't need to load tables and shit if not needed
-	-- all upgrades need to use functions and variables found only within that upgrade
-	-- saved variables will have to be used; that is kind of the point of this
-	local upgrades = {
-		["1.1.0"] = function(self) -- from
-			if not HackDB.books then HackDB.version = "1.2.0" return end-- maybe they have deleted all their saved vars.
-			if not HackDB.order then HackDB.order = {} end -- thought this was taken care of in the default stuff above?
-			if not HackDB.pages then HackDB.pages = {} end
-			local pages, order = {},{}
-			for _,book in ipairs(HackDB.books) do
-				for _,page in ipairs(book.data) do
-					if not pages[page.name] then -- don't want to overwrite anything
-						pages[page.name] = page -- table[''] is valid!
-						table.insert(order, page.name)
-						pages[page.name].index = #order
-					else
-   					for i=2,#order+2 do -- first copy is name(2) etc,maybe all things are the same name!
-							if not pages[page.name..'('..i..')'] then
-								local n = page.name..'('..i..')'
-   	   					pages[n] = page
-								pages[n].name = n
-								table.insert(order,n)
-								pages[n].index = #order
-		   	   			break
-		   				end
-						end
-					end
-				end
-			end
-			HackDB.books = nil 
-			HackDB.book = nil
-			HackDB.pages = pages
-			HackDB.order = order
-			HackDB.version = "1.2.0" -- to
-		end,
-		["1.2.0"] = function(self)
-			if not HackDB.colorTable then HackDB.colorTable = 1 end
-		HackDB.version = "1.2.1"
-		end
-	}
+   -- all upgrades need to use functions and variables found only within that upgrade
+   -- saved variables will have to be used; that is kind of the point of this
+   local upgrades = {
+      ["1.1.0"] = function(self) -- from
+         if not HackDB.books then HackDB.version = "1.2.0" return end-- maybe they have deleted all their saved vars.
+         if not HackDB.order then HackDB.order = {} end -- thought this was taken care of in the default stuff above?
+         if not HackDB.pages then HackDB.pages = {} end
+         local pages, order = {},{}
+         for _,book in ipairs(HackDB.books) do
+            for _,page in ipairs(book.data) do
+               if not pages[page.name] then -- don't want to overwrite anything
+                  pages[page.name] = page -- table[''] is valid!
+                  table.insert(order, page.name)
+                  pages[page.name].index = #order
+               else
+                  for i=2,#order+2 do -- first copy is name(2) etc,maybe all things are the same name!
+                     if not pages[page.name..'('..i..')'] then
+                        local n = page.name..'('..i..')'
+                        pages[n] = page
+                        pages[n].name = n
+                        table.insert(order,n)
+                        pages[n].index = #order
+                        break
+                     end
+                  end
+               end
+            end
+         end
+         HackDB.books = nil 
+         HackDB.book = nil
+         HackDB.pages = pages
+         HackDB.order = order
+         HackDB.version = "1.2.0" -- to
+      end,
+      ["1.2.0"] = function(self)
+         if not HackDB.colorTable then HackDB.colorTable = 1 end
+      HackDB.version = "1.2.1"
+      end
+   }
 
-	if not HackDB.version then
-		HackDB.version = "1.1.0"
-	end
-	while HackDB.version ~= maxVersion do
-		local tempVersion = HackDB.version -- preventing nub infinite loop
+   if not HackDB.version then
+      HackDB.version = "1.1.0"
+   end
+   while HackDB.version ~= maxVersion do
+      local tempVersion = HackDB.version -- preventing nub infinite loop
 
-		if upgrades[HackDB.version] then
-			upgrades[HackDB.version]()
-			if tempVersion == HackDB.version then
-				error("Continuously trying to upgrade from "..HackDB.version)
-			end
-		else
-			error("Can't upgrade from "..HackDB.version)
-		end
-	end
+      if upgrades[HackDB.version] then
+         upgrades[HackDB.version]()
+         if tempVersion == HackDB.version then
+            error("Continuously trying to upgrade from "..HackDB.version)
+         end
+      else
+         error("Can't upgrade from "..HackDB.version)
+      end
+   end
 end
 
 StaticPopupDialogs.HackAccept = {
@@ -160,9 +160,9 @@ local function enableButton(b,e) if e then HackNew.Enable(b) else HackNew.Disabl
 
 -- finds the page for the index
 function Hack.Find(index)
-	if order[index] then
-		return pages[order[index]]
-	end
+   if order[index] then
+      return pages[order[index]]
+   end
 end
 
 -- Thonik: Update to highlight line Num?
@@ -215,23 +215,23 @@ end
 
 function Hack.DoAutorun()
    for _,page in pairs(pages) do
-   	if page.autorun then 
-      	Hack.Execute( Hack.Compile(page) )
+      if page.autorun then 
+         Hack.Execute( Hack.Compile(page) )
       end
    end
 end
 
 function Hack.GetUniqueName(name)
 
-	if not pages[name] then 
-		return name
-	else
-		for i=2,#order+2 do --+1 for starting at 2; +1 for making sure we get a hit; could probably do a while loop
-   		if not pages[name..'('..i..')'] then
-   			return name..'('..i..')' 
-  			end
-		end
-	end
+   if not pages[name] then 
+      return name
+   else
+      for i=2,#order+2 do --+1 for starting at 2; +1 for making sure we get a hit; could probably do a while loop
+         if not pages[name..'('..i..')'] then
+            return name..'('..i..')' 
+           end
+      end
+   end
 end
 
 function Hack.OnLoad(self)
@@ -263,10 +263,10 @@ function Hack.OnLoad(self)
 end
 
 function Hack.VARIABLES_LOADED(self)
-	Hack.Upgrade()   
-	db = HackDB
+   Hack.Upgrade()   
+   db = HackDB
    pages = db.pages
-	order = db.order
+   order = db.order
    Hack.UpdateFont()
    Hack.UpdateButtons()
    Hack.UpdateSearchContext()
@@ -324,14 +324,14 @@ function Hack.UpdateListItems()
          local edit = getobj('HackListItem%dEdit', widgetIndex)
          local auto = getobj('HackListItem%dAutorun', widgetIndex)
          edit:ClearFocus() -- in case someone tries to scroll while renaming
-        	if Hack.SearchMatch(item) then
+           if Hack.SearchMatch(item) then
             name:SetTextColor(1,1,1) else name:SetTextColor(.3,.3,.3) end
          if itemIndex == selected then 
             widget:LockHighlight() else widget:UnlockHighlight() end
          auto:Show()
          name:SetText(item.name)
          auto:SetChecked(item.autorun)
-	   end
+      end
    end
 end
 
@@ -339,55 +339,55 @@ end
 -- Adding Line Numbers to the EditPage
 function Hack:UpdateLineNums()
         --could edit it to pass a variable and highlight a line
-	
+   
 
-	-- Since this can be FAIAP enabled, we need to pass true in order
-	-- to get the raw values
-	local editbox = HackEditBox
-	local linebox = HackLineNumEditBoxFrame
-	local linescroll = HackLineNumScrollFrame
-	local linetest = HackEditBox:CreateFontString()
+   -- Since this can be FAIAP enabled, we need to pass true in order
+   -- to get the raw values
+   local editbox = HackEditBox
+   local linebox = HackLineNumEditBoxFrame
+   local linescroll = HackLineNumScrollFrame
+   local linetest = HackEditBox:CreateFontString()
     linetest:SetFont(Hack.fonts[db.font], db.fontsize)
 
 
-	local width = editbox:GetWidth() -65 --accounting for text insets in the xml
-	local text = editbox:GetText(true)
+   local width = editbox:GetWidth() -65 --accounting for text insets in the xml
+   local text = editbox:GetText(true)
 
-	local linetext = ""
-	local count = 1
-	for line in text:gmatch("([^\n]*\n?)") do
+   local linetext = ""
+   local count = 1
+   for line in text:gmatch("([^\n]*\n?)") do
             if #line > 0 then
             --will highlight if I ever put it in
-		    --linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
-			linetext = linetext .. count .. "\n"
-			count = count + 1
+          --linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
+         linetext = linetext .. count .. "\n"
+         count = count + 1
 
-			-- Check to see if the line of text spans more than one actual line
-			linetest:SetText(line:gsub("|", "||"))
-			local testwidth = linetest:GetWidth()
-			if testwidth >= width then
-				linetext = linetext .. string.rep("\n", math.floor(testwidth / width))	
-			end
-		end
-	end
+         -- Check to see if the line of text spans more than one actual line
+         linetest:SetText(line:gsub("|", "||"))
+         local testwidth = linetest:GetWidth()
+         if testwidth >= width then
+            linetext = linetext .. string.rep("\n", math.floor(testwidth / width))   
+         end
+      end
+   end
 --[[
         --what is this doing?
-	if text:sub(-1, -1) == "\n" then
-		linetext = linetext .. count .. "\n"
-		count = count + 1
-	end
+   if text:sub(-1, -1) == "\n" then
+      linetext = linetext .. count .. "\n"
+      count = count + 1
+   end
        --]]
 
 
-	-- Make the line number frame wider as necessary
+   -- Make the line number frame wider as necessary
         linetest:SetText(count)
-	local numwidth = linetest:GetWidth()
+   local numwidth = linetest:GetWidth()
     --always a 3 pixel buffer between the number and the main editbox
-	linescroll:SetWidth(3+numwidth)
-	linebox:SetWidth(3+numwidth)
+   linescroll:SetWidth(3+numwidth)
+   linebox:SetWidth(3+numwidth)
 
     --apply what we've done
-	linebox:SetText(linetext)  
+   linebox:SetText(linetext)  
               
 end
 
@@ -396,7 +396,7 @@ end
 
 function Hack.UpdateButtons()
    enableButton( HackDelete,   selected )
-   enableButton( HackRename,   selected )	
+   enableButton( HackRename,   selected )   
    enableButton( HackSend,     selected )
    enableButton( HackMoveUp,   selected and selected > 1 )
    enableButton( HackMoveDown, selected and selected < #order )
@@ -479,25 +479,25 @@ function Hack.Rename()
 end
 
 function Hack.FinishRename(name, editbox)
-	name = Hack.GetUniqueName(name)
-	pages[name] = pages[order[selected]]
-	pages[name].name = name 
-	pages[order[selected]] = nil  --its happening
-	order[selected] = name
-	Hack.UpdateListItems()
+   name = Hack.GetUniqueName(name)
+   pages[name] = pages[order[selected]]
+   pages[name].name = name 
+   pages[order[selected]] = nil  --its happening
+   order[selected] = name
+   Hack.UpdateListItems()
 end
 
 function Hack.New(page, atEnd) 
-	local index = (atEnd and #order+1) or  selected+1
-  	if page then
-		page.name = Hack.GetUniqueName(page.name)
-	else
-		page = {name = Hack.GetUniqueName(''), data='' }
-	end
-	
-	pages[page.name] = page
+   local index = (atEnd and #order+1) or  selected+1
+     if page then
+      page.name = Hack.GetUniqueName(page.name)
+   else
+      page = {name = Hack.GetUniqueName(''), data='' }
+   end
+   
+   pages[page.name] = page
    table.insert(order, index, page.name) 
-	pages[page.name].index = #order
+   pages[page.name].index = #order
 
    Hack.SelectListItem(index)
    Hack.UpdateListItems()
@@ -515,7 +515,7 @@ end
 
 function Hack.DeleteSelected()
    HackEditFrame:Hide()
-	pages[order[selected]] = nil
+   pages[order[selected]] = nil
    table.remove(order,selected)
    if #order == 0 then selected = nil
    elseif selected > #order then selected = #order end
@@ -537,9 +537,9 @@ function Hack.MoveItem(direction)
       order[selected], order[selected+direction] = order[selected+direction], order[selected]
       selected = selected + direction
    end
-	for i=1,#order do
-		pages[order[i]].index = i --updating the index property of the pages
-	end
+   for i=1,#order do
+      pages[order[i]].index = i --updating the index property of the pages
+   end
    Hack.ScrollSelectedIntoView()
    Hack.UpdateButtons()
 end
@@ -568,8 +568,8 @@ function Hack.FontCycle()
 end
 -- currently unattached to any in-game config
 function Hack.ColorTableCycle()
-	db.colorTable = (db.colorTable < #Hack.colorTables) and (db.colorTable+1) or (1)
-	Hack.ApplyColor(true)
+   db.colorTable = (db.colorTable < #Hack.colorTables) and (db.colorTable+1) or (1)
+   Hack.ApplyColor(true)
 end
 
 function Hack.UpdateFont()
@@ -583,7 +583,7 @@ end
 
 function Hack.ApplyColor(colorize)
    if colorize then
-		HackIndent.enable(HackEditBox,Hack.colorTables[db.colorTable], 3)
+      HackIndent.enable(HackEditBox,Hack.colorTables[db.colorTable], 3)
       HackIndent.colorCodeEditbox(HackEditBox)
    else
       HackIndent.disable(HackEditBox)
@@ -592,7 +592,7 @@ end
 
 function Hack.EditPage()
    local page = pages[order[selected]]
-	Hack.revert = page.data
+   Hack.revert = page.data
    HackEditBox:SetText(page.data)
    HackRevert:Disable()
    HackEditFrame:Show()
@@ -643,7 +643,7 @@ function Hack.Colorize()
 end
 
 function Hack.SelectedPage()
-        return pages[order[selected]];
+    return pages[order[selected]];
 end;
 
 do
@@ -683,7 +683,7 @@ end
 do -- receive page
    local receiving = {}
    function Hack.CHAT_MSG_ADDON(msg, prefix, body, channel, sender)
-     	if sender == PLAYERNAME then return end
+        if sender == PLAYERNAME then return end
       local id = prefix:match('Hack(.*)')
       if not id then
          return -- message not for Hack
