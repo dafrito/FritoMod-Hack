@@ -453,9 +453,14 @@ end
 
 function Hack.Tooltip(self)
    local which = self:GetName()
-   local tip = which:match('Autorun') 
-      and 'Automatically run this page when Hack loads'
-      or format(Hack.tooltips[which], "page")
+   local tip
+   if which and which:match('Autorun') then
+      tip = 'Automatically run this page when Hack loads'
+   elseif Hack.tooltips[which] then
+      tip = format(Hack.tooltips[which], "page")
+   else
+      return;
+   end;
    GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
    GameTooltip:AddLine(tip)
    GameTooltip:Show()
