@@ -660,7 +660,6 @@ do
       { text = 'Party', func = send },
       { text = 'Raid',  func = send },
       { text = 'Guild', func = send },
-      { text = 'Cancel' },
    }
    CreateFrame('Frame', 'HackSendMenu', HackListFrame, 'UIDropDownMenuTemplate')
    function Hack.Send()
