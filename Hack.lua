@@ -642,8 +642,12 @@ function Hack.Colorize()
    Hack.ApplyColor(page.colorize)
 end
 
+function Hack.SelectedPage()
+        return pages[order[selected]];
+end;
+
 do
-   local function send(self) Hack.SendPage(pages[order[selected]], self.value) end
+   local function send(self) Hack.SendPage(Hack.SelectedPage(), self.value) end
    local menu = {
       { text = 'Player', func = function()
             local dialog = StaticPopup_Show('HackSendTo')
