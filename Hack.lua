@@ -149,6 +149,14 @@ StaticPopupDialogs.HackDelete = {
    end
 }
 
+StaticPopupDialogs.HackAcceptShare = {
+   text = 'Share %s with %s?', button1 = 'Yes', button2 = 'No',
+   timeout = 0, whileDead = 1, hideOnEscape = 1,
+   OnAccept = function(self)
+      SendAddonMessage("HackAcceptShare", self.page, "WHISPER", self.sender);
+   end
+}
+
 local db -- alias for HackDB
 local pages -- alias for HackDB.pages
 local order -- alias for HackDB.order
@@ -590,8 +598,13 @@ function Hack.ApplyColor(colorize)
    end
 end
 
+function Hack.EditedPage()
+    return Hack.editedPage;
+end;
+
 function Hack.EditPage()
    local page = pages[order[selected]]
+   Hack.editedPage = page;
    Hack.revert = page.data
    HackEditBox:SetText(page.data)
    HackRevert:Disable()
@@ -683,7 +696,7 @@ end
 do -- receive page
    local receiving = {}
    function Hack.CHAT_MSG_ADDON(msg, prefix, body, channel, sender)
-        if sender == PLAYERNAME then return end
+      if sender == PLAYERNAME then return end
       local id = prefix:match('Hack(.*)')
       if not id then
          return -- message not for Hack
@@ -691,6 +704,15 @@ do -- receive page
          printf('%s accepted your page.', sender)
       elseif id == 'Nack' then
          printf('%s rejected your page.', sender)
+      elseif id == 'Share' then
+         local dialog=StaticPopup_Show('HackAcceptShare');
+         dialog.page=body;
+         dialog.sender=sender;
+      elseif id == 'AcceptShare' then
+         -- TODO People could "steal" pages since we don't record what _we_ want to send.
+         -- TODO I don't know a good way yet to stop sending, so we'll just send for as long as
+         -- we can.
+         Timing.Every(.25, Hack.SendPage, body, "WHISPER", sender);
       elseif not receiving[id] then -- new page incoming
          receiving[id] = { name = body, data = {} }
       elseif #body > 1 then -- append to page body
@@ -698,6 +720,7 @@ do -- receive page
       else -- page end
          local page = { name=Hack.GetUniqueName(receiving[id].name), data=table.concat(receiving[id].data) }
          receiving[id] = nil
+         -- TODO Only display popup if we're not sharing already.
          local dialog = StaticPopup_Show('HackAccept', sender)
          if dialog then 
             dialog.page = page 
@@ -706,6 +729,15 @@ do -- receive page
       end
    end
 end
+
+function Hack.Share(target, ...)
+   if not target then
+      -- TODO Make this show a menu or something.
+      target=UnitName("target");
+   end;
+    -- TODO Ask if target wants our page.
+   SendAddonMessage("HackShare", Hack.EditedPage().name, target, ...);
+end;
 
 -- add/remove frame from UISpecialFrames (borrowed from TinyPad)
 function Hack.MakeESCable(frame,enable)
