@@ -705,6 +705,7 @@ do -- receive page
       elseif id == 'Nack' then
          printf('%s rejected your page.', sender)
       elseif id == 'Share' then
+         printf('Received %s from %s', body, sender);
          local dialog=StaticPopup_Show('HackAcceptShare');
          dialog.page=body;
          dialog.sender=sender;
