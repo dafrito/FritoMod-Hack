@@ -778,8 +778,7 @@ do -- receive page
             if autoapproved[page.name] then
                assert(pages[page.name], "Page could not be found with name: "..page.name);
                pages[page.name].data=page.data;
-               if Hack.EditedPage().name==page.name then
-                  -- XXX We might need to update things here.
+               if Hack.EditedPage() and Hack.EditedPage().name==page.name then
                   HackEditBox:SetText(page.data)
                end;
             else
