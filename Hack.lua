@@ -150,7 +150,7 @@ StaticPopupDialogs.HackDelete = {
 }
 
 StaticPopupDialogs.HackAcceptShare = {
-   text = 'Share %s with %s?', button1 = 'Yes', button2 = 'No',
+   text = "Share '%s' with %s?", button1 = 'Yes', button2 = 'No',
    timeout = 0, whileDead = 1, hideOnEscape = 1,
    OnAccept = function(self)
       SendAddonMessage("HackAcceptShare", self.page, "WHISPER", self.sender);
