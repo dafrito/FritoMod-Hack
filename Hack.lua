@@ -730,13 +730,12 @@ do -- receive page
    end
 end
 
-function Hack.Share(target, ...)
-   if not target then
-      -- TODO Make this show a menu or something.
-      target=UnitName("target");
+function Hack.Share(channel, target)
+   if not channel then
+      assert(UnitName("target"), "You must have a target to share scripts");
+      Hack.Share("WHISPER", UnitName("target"));
    end;
-    -- TODO Ask if target wants our page.
-   SendAddonMessage("HackShare", Hack.EditedPage().name, target, ...);
+   SendAddonMessage("HackShare", Hack.EditedPage().name, channel, target);
 end;
 
 -- add/remove frame from UISpecialFrames (borrowed from TinyPad)
