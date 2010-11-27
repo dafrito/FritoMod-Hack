@@ -713,7 +713,7 @@ do -- receive page
          -- TODO People could "steal" pages since we don't record what _we_ want to send.
          -- TODO I don't know a good way yet to stop sending, so we'll just send for as long as
          -- we can.
-         Timing.Every(.25, Hack.SendPage, body, "WHISPER", sender);
+         Timing.Every(5, Hack.SendPage, body, "WHISPER", sender);
       elseif not receiving[id] then -- new page incoming
          receiving[id] = { name = body, data = {} }
       elseif #body > 1 then -- append to page body
