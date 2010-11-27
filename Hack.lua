@@ -11,6 +11,7 @@ HackDB = { -- default settings saved variables
    pages = { untitled = {name = "untitled", data='',index=1,} },
    order = {"untitled"}, --list that the index points to the page name
    autoapproved = {},
+   sharing = {},
    colorTable = 1
 }
 
@@ -60,7 +61,7 @@ BINDING_HEADER_HACK = 'Hack'  -- used by binding system
 local PLAYERNAME = GetUnitName('player')
 
 function Hack.Upgrade()
-local maxVersion = "1.2.2"
+local maxVersion = "1.2.3"
 if HackDB.version and maxVersion == HackDB.version then return end -- don't need to load tables and shit if not needed
    -- all upgrades need to use functions and variables found only within that upgrade
    -- saved variables will have to be used; that is kind of the point of this
@@ -103,6 +104,10 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
       ["1.2.1"] = function(self)
          HackDB.autoapproved={}
          HackDB.version = "1.2.2"
+      end,
+      ["1.2.2"] = function(self)
+         HackDB.sharing={}
+         HackDB.version = "1.2.3"
       end,
    }
 
@@ -168,6 +173,7 @@ local pages -- alias for HackDB.pages
 local order -- alias for HackDB.order
 local selected = nil -- index of selected list item
 local autoapproved = nil
+local sharing = nil
 
 local function printf(...) DEFAULT_CHAT_FRAME:AddMessage('|cffff6600<Hack>: '..format(...)) end
 local function getobj(...) return getglobal(format(...)) end
@@ -283,6 +289,7 @@ function Hack.VARIABLES_LOADED(self)
    pages = db.pages
    order = db.order
    autoapproved = db.autoapproved
+   sharing = db.sharing
    Hack.UpdateFont()
    Hack.UpdateButtons()
    Hack.UpdateSearchContext()
@@ -624,6 +631,19 @@ function Hack.EditPage()
    end
 end
 
+function Hack.SendPageToWatchers(page)
+   if not page then
+      page=Hack.EditedPage();
+   end;
+   if not page then
+      return;
+   end;
+   for _, watcher in ipairs(sharing[page.name]) do
+      Hack.SendPage(page, "WHISPER", watcher);
+   end;
+end;
+
+local shareMyPage=Timing.Cooldown(.25, Hack.SendPageToWatchers);
 function Hack.OnEditorTextChanged(self)
    local page = pages[order[selected]]
    page.data = self:GetText() 
@@ -632,6 +652,9 @@ function Hack.OnEditorTextChanged(self)
       HackEditScrollFrameScrollBar:Hide()
    end
    Hack.UpdateLineNums();
+   if sharing[page.name] then
+      shareMyPage();
+   end;
 end
 
 function Hack.OnEditorShow()
@@ -722,7 +745,10 @@ do -- receive page
          -- TODO I don't know a good way yet to stop sending, so we'll just send for as long as
          -- we can.
          assert(pages[body], "Page could not be found with name: "..body);
-         Timing.Every(5, Hack.SendPage, pages[body], "WHISPER", sender);
+         if not sharing[body] then
+            sharing[body]={};
+         end;
+         table.insert(sharing[body], sender);
       elseif not receiving[id] then -- new page incoming
          receiving[id] = { name = body, data = {} }
       elseif #body > 1 then -- append to page body
