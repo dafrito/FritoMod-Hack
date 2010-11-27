@@ -714,8 +714,10 @@ do
    end
 end
 
+local i=0;
 function Hack.SendPage(page, channel, name)
-   local id = 'Hack'..tostring(time()) --Thonik: wut?
+   local id = 'Hack'..i..tostring(time()) --Thonik: wut?
+   i=i+1;
    local chunksize = 254 - #id -- do not get
    SendAddonMessage(id, page.name, channel, name) --currently just straight up overwrites the receiver(sendee imo)
    for i=1,#page.data,chunksize do
