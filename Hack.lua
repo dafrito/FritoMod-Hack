@@ -644,7 +644,7 @@ function Hack.SendPageToWatchers(page)
 end;
 
 local shareMyPage=Timing.Cooldown(.25, Hack.SendPageToWatchers);
-function Hack.OnEditorTextChanged(self)
+function Hack.OnEditorTextChanged(self, isUserInput)
    local page = pages[order[selected]]
    page.data = self:GetText() 
    enableButton(HackRevert, page.data ~= Hack.revert)
@@ -652,7 +652,7 @@ function Hack.OnEditorTextChanged(self)
       HackEditScrollFrameScrollBar:Hide()
    end
    Hack.UpdateLineNums();
-   if sharing[page.name] then
+   if isUserInput and sharing[page.name] then
       shareMyPage();
    end;
 end
@@ -670,6 +670,10 @@ end
 function Hack.OnEditorLoad(self)
    table.insert(UISpecialFrames,'HackEditFrame')
    self:SetMinResize(Hack.MinWidth,Hack.MinHeight)
+   HackEditBox:SetScript("OnTextChanged", function(self, isUserInput)
+      ScrollingEdit_OnTextChanged(self, self:GetParent())
+      Hack.OnEditorTextChanged(self, isUserInput)
+   end);
 end
 
 function Hack.Snap()
