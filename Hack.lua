@@ -10,6 +10,7 @@ HackDB = { -- default settings saved variables
    snap = 1,
    pages = { untitled = {name = "untitled", data='',index=1,} },
    order = {"untitled"}, --list that the index points to the page name
+   autoapproved = {},
    colorTable = 1
 }
 
@@ -59,7 +60,7 @@ BINDING_HEADER_HACK = 'Hack'  -- used by binding system
 local PLAYERNAME = GetUnitName('player')
 
 function Hack.Upgrade()
-local maxVersion = "1.2.1"
+local maxVersion = "1.2.2"
 if HackDB.version and maxVersion == HackDB.version then return end -- don't need to load tables and shit if not needed
    -- all upgrades need to use functions and variables found only within that upgrade
    -- saved variables will have to be used; that is kind of the point of this
@@ -98,7 +99,11 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
       ["1.2.0"] = function(self)
          if not HackDB.colorTable then HackDB.colorTable = 1 end
       HackDB.version = "1.2.1"
-      end
+      end,
+      ["1.2.1"] = function(self)
+         HackDB.autoapproved={}
+         HackDB.version = "1.2.2"
+      end,
    }
 
    if not HackDB.version then
@@ -162,6 +167,7 @@ local db -- alias for HackDB
 local pages -- alias for HackDB.pages
 local order -- alias for HackDB.order
 local selected = nil -- index of selected list item
+local autoapproved = nil
 
 local function printf(...) DEFAULT_CHAT_FRAME:AddMessage('|cffff6600<Hack>: '..format(...)) end
 local function getobj(...) return getglobal(format(...)) end
@@ -276,6 +282,7 @@ function Hack.VARIABLES_LOADED(self)
    db = HackDB
    pages = db.pages
    order = db.order
+   autoapproved = db.autoapproved
    Hack.UpdateFont()
    Hack.UpdateButtons()
    Hack.UpdateSearchContext()
