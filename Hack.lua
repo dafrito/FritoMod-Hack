@@ -726,6 +726,7 @@ do -- receive page
          local page = { name=Hack.GetUniqueName(receiving[id].name), data=table.concat(receiving[id].data) }
          receiving[id] = nil
          if autoapproved[receiving[id].name] then
+            assert(pages[page.name], "Page could not be found with name: "..page.name);
             pages[page.name].data=page.data;
             if Hack.EditedPage().name==page.name then
                -- XXX We might need to update things here.
