@@ -723,8 +723,7 @@ do -- receive page
       elseif #body > 1 then -- append to page body
          table.insert(receiving[id].data, body)
       else -- page end
-         local page = { name=Hack.GetUniqueName(receiving[id].name), data=table.concat(receiving[id].data) }
-         receiving[id] = nil
+         local page = { name=receiving[id].name, data=table.concat(receiving[id].data) }
          if autoapproved[receiving[id].name] then
             assert(pages[page.name], "Page could not be found with name: "..page.name);
             pages[page.name].data=page.data;
@@ -733,12 +732,14 @@ do -- receive page
                HackEditBox:SetText(page.data)
             end;
          else
+            page.name=Hack.GetUniqueName(page.name);
             local dialog = StaticPopup_Show('HackAccept', sender)
             if dialog then 
                dialog.page = page 
                dialog.sender = sender
             end
          end;
+         receiving[id] = nil
       end
    end
 end
