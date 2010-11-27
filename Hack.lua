@@ -731,6 +731,7 @@ end
 
 local i=0;
 function Hack.SendPage(page, channel, name)
+   printf("Sending '%s' to %s", page.name, name);
    local id = 'Hack'..i..tostring(time()) --Thonik: wut?
    i=i+1;
    local chunksize = 254 - #id -- do not get
@@ -774,7 +775,7 @@ do -- receive page
             table.insert(receiving[id].data, body)
          else -- page end
             local page = { name=receiving[id].name, data=table.concat(receiving[id].data) }
-            if autoapproved[receiving[id].name] then
+            if autoapproved[page.name] then
                assert(pages[page.name], "Page could not be found with name: "..page.name);
                pages[page.name].data=page.data;
                if Hack.EditedPage().name==page.name then
