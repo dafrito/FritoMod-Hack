@@ -735,6 +735,7 @@ function Hack.Share(channel, target)
    if not channel then
       assert(UnitName("target"), "You must have a target to share scripts");
       Hack.Share("WHISPER", UnitName("target"));
+      return;
    end;
    SendAddonMessage("HackShare", Hack.EditedPage().name, channel, target);
 end;
