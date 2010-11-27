@@ -154,6 +154,7 @@ StaticPopupDialogs.HackAcceptShare = {
    timeout = 0, whileDead = 1, hideOnEscape = 1,
    OnAccept = function(self)
       SendAddonMessage("HackAcceptShare", self.page, "WHISPER", self.sender);
+      Hack.AutoApproveUpdates(self.page, self.sender);
    end
 }
 
@@ -693,6 +694,8 @@ function Hack.SendPage(page, channel, name)
    SendAddonMessage(id, '', channel, name)
 end
 
+local autoapproved={};
+
 do -- receive page
    local receiving = {}
    function Hack.CHAT_MSG_ADDON(msg, prefix, body, channel, sender)
@@ -721,12 +724,19 @@ do -- receive page
       else -- page end
          local page = { name=Hack.GetUniqueName(receiving[id].name), data=table.concat(receiving[id].data) }
          receiving[id] = nil
-         -- TODO Only display popup if we're not sharing already.
-         local dialog = StaticPopup_Show('HackAccept', sender)
-         if dialog then 
-            dialog.page = page 
-            dialog.sender = sender
-         end
+         if autoapproved[receiving[id].name] then
+            pages[page.name].data=page.data;
+            if Hack.EditedPage().name==page.name then
+               -- XXX We might need to update things here.
+               HackEditBox:SetText(page.data)
+            end;
+         else
+            local dialog = StaticPopup_Show('HackAccept', sender)
+            if dialog then 
+               dialog.page = page 
+               dialog.sender = sender
+            end
+         end;
       end
    end
 end
@@ -738,6 +748,11 @@ function Hack.Share(channel, target)
       return;
    end;
    SendAddonMessage("HackShare", Hack.EditedPage().name, channel, target);
+end;
+
+function Hack.AutoApproveUpdates(page, sender)
+   -- XXX We ignore the sender here completely.
+   autoapproved[page]=true;
 end;
 
 -- add/remove frame from UISpecialFrames (borrowed from TinyPad)
