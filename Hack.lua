@@ -750,29 +750,33 @@ do -- receive page
             sharing[body]={};
          end;
          table.insert(sharing[body], sender);
-      elseif not receiving[id] then -- new page incoming
-         receiving[id] = { name = body, data = {} }
-      elseif #body > 1 then -- append to page body
-         table.insert(receiving[id].data, body)
-      else -- page end
-         local page = { name=receiving[id].name, data=table.concat(receiving[id].data) }
-         if autoapproved[receiving[id].name] then
-            assert(pages[page.name], "Page could not be found with name: "..page.name);
-            pages[page.name].data=page.data;
-            if Hack.EditedPage().name==page.name then
-               -- XXX We might need to update things here.
-               HackEditBox:SetText(page.data)
+      else
+         -- Add sender to the name so we're unique for all senders.
+         id=sender..id;
+         if not receiving[id] then -- new page incoming
+            receiving[id] = { name = body, data = {} }
+         elseif #body > 1 then -- append to page body
+            table.insert(receiving[id].data, body)
+         else -- page end
+            local page = { name=receiving[id].name, data=table.concat(receiving[id].data) }
+            if autoapproved[receiving[id].name] then
+               assert(pages[page.name], "Page could not be found with name: "..page.name);
+               pages[page.name].data=page.data;
+               if Hack.EditedPage().name==page.name then
+                  -- XXX We might need to update things here.
+                  HackEditBox:SetText(page.data)
+               end;
+            else
+               page.name=Hack.GetUniqueName(page.name);
+               local dialog = StaticPopup_Show('HackAccept', sender)
+               if dialog then 
+                  dialog.page = page 
+                  dialog.sender = sender
+               end
             end;
-         else
-            page.name=Hack.GetUniqueName(page.name);
-            local dialog = StaticPopup_Show('HackAccept', sender)
-            if dialog then 
-               dialog.page = page 
-               dialog.sender = sender
-            end
-         end;
-         receiving[id] = nil
-      end
+            receiving[id] = nil
+         end
+      end;
    end
 end
 
