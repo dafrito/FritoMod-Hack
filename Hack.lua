@@ -701,8 +701,6 @@ function Hack.SendPage(page, channel, name)
    SendAddonMessage(id, '', channel, name)
 end
 
-local autoapproved={};
-
 do -- receive page
    local receiving = {}
    function Hack.CHAT_MSG_ADDON(msg, prefix, body, channel, sender)
