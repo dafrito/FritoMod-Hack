@@ -61,7 +61,7 @@ BINDING_HEADER_HACK = 'Hack'  -- used by binding system
 local PLAYERNAME = GetUnitName('player')
 
 function Hack.Upgrade()
-local maxVersion = "1.2.3"
+local maxVersion = "1.2.4"
 if HackDB.version and maxVersion == HackDB.version then return end -- don't need to load tables and shit if not needed
    -- all upgrades need to use functions and variables found only within that upgrade
    -- saved variables will have to be used; that is kind of the point of this
@@ -108,6 +108,17 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
       ["1.2.2"] = function(self)
          HackDB.sharing={}
          HackDB.version = "1.2.3"
+      end,
+      ["1.2.3"] = function(self)
+         for _, senders in pairs(HackDB.sharing) do
+            for i=1,#senders do
+               senders[senders[i]]=true;
+            end;
+            while #senders > 0 do
+               table.remove(senders);
+            end;
+         end;
+         HackDB.version = "1.2.4"
       end,
    }
 
@@ -638,7 +649,7 @@ function Hack.SendPageToWatchers(page)
    if not page then
       return;
    end;
-   for _, watcher in ipairs(sharing[page.name]) do
+   for watcher,_ in pairs(sharing[page.name]) do
       Hack.SendPage(page, "WHISPER", watcher);
    end;
 end;
@@ -753,7 +764,7 @@ do -- receive page
          if not sharing[body] then
             sharing[body]={};
          end;
-         table.insert(sharing[body], sender);
+         sharing[body][sender]=true;
       else
          -- Add sender to the name so we're unique for all senders.
          id=sender..id;
