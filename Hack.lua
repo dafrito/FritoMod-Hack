@@ -522,8 +522,8 @@ function Hack.FinishRename(name, editbox)
 end
 
 function Hack.New(page, atEnd) 
-   local index = (atEnd and #order+1) or  selected+1
-     if page then
+   local index = (atEnd and #order+1) or  selected and selected+1 or #order+1
+   if page then
       page.name = Hack.GetUniqueName(page.name)
    else
       page = {name = Hack.GetUniqueName(''), data='' }
