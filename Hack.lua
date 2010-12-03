@@ -731,7 +731,7 @@ end
 
 local i=0;
 function Hack.SendPage(page, channel, name)
-   printf("Sending '%s' to %s", page.name, name);
+   printf("Sending '%s' to %s", page.name, name or channel);
    local id = 'Hack'..i..tostring(time()) --Thonik: wut?
    i=i+1;
    local chunksize = 254 - #id -- do not get
