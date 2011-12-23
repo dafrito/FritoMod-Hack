@@ -144,10 +144,10 @@ StaticPopupDialogs.HackAccept = {
    timeout = 0, whileDead = 1, hideOnEscape = 1,
    OnAccept = function(self)
       Hack.New(self.page, true) -- all received pages start at end of list
-      SendAddonMessage('HackAck', PLAYERNAME, 'WHISPER', self.sender)
+      Remote["Hack"][self.sender]("Ack" .. PLAYERNAME);
    end,
    OnCancel = function(self)
-      SendAddonMessage('HackNack', PLAYERNAME, 'WHISPER', self.sender)
+      Remote["Hack"][self.sender]("Nack" .. PLAYERNAME);
    end,
 }
 
@@ -174,7 +174,7 @@ StaticPopupDialogs.HackAcceptShare = {
    text = "Share '%s' with %s?", button1 = 'Yes', button2 = 'No',
    timeout = 0, whileDead = 1, hideOnEscape = 1,
    OnAccept = function(self)
-      SendAddonMessage("HackAcceptShare", self.page, "WHISPER", self.sender);
+      Remote["Hack"][self.sender]("AcceptShare" .. PLAYERNAME);
       Hack.AutoApproveUpdates(self.page, self.sender);
    end
 }
@@ -275,11 +275,9 @@ function Hack.OnLoad(self)
       li:SetID(i)
    end
 
-   self:RegisterEvent('VARIABLES_LOADED')
-   self:RegisterEvent('CHAT_MSG_ADDON')
-   self:SetScript("OnEvent", function(_, event, ...)
-      Hack[event](self, ...);
-   end);
+   Events.VARIABLES_LOADED(Hack.VARIABLES_LOADED, self);
+   Remote["Hack"](Hack.CHAT_MSG_ADDON);
+   Callbacks.StringChunks(Remote["HackPages"], Hack.INCOMING_PAGE);
 
    SLASH_HACKSLASH1 = '/hack'
    SlashCmdList['HACKSLASH'] = 
@@ -732,68 +730,62 @@ end
 local i=0;
 function Hack.SendPage(page, channel, name)
    printf("Sending '%s' to %s", page.name, name or channel);
-   local id = 'Hack'..i..tostring(time()) --Thonik: wut?
-   i=i+1;
-   local chunksize = 254 - #id -- do not get
-   SendAddonMessage(id, page.name, channel, name) --currently just straight up overwrites the receiver(sendee imo)
-   for i=1,#page.data,chunksize do
-      SendAddonMessage(id, page.data:sub(i,i+chunksize-1), channel, name)
-   end
-   SendAddonMessage(id, '', channel, name)
+   Remote["HackPages"][name or channel](
+      Serializers.WriteStringChunks(page.data, "HackPages"));
 end
 
-do -- receive page
-   local receiving = {}
-   function Hack.CHAT_MSG_ADDON(msg, prefix, body, channel, sender)
-      if sender == PLAYERNAME then return end
-      local id = prefix:match('Hack(.*)')
-      if not id then
-         return -- message not for Hack
-      elseif id == 'Ack' then
-         printf('%s accepted your page.', sender)
-      elseif id == 'Nack' then
-         printf('%s rejected your page.', sender)
-      elseif id == 'Share' then
-         printf('Received %s from %s', body, sender);
-         local dialog=StaticPopup_Show('HackAcceptShare', body, sender);
-         dialog.page=body;
-         dialog.sender=sender;
-      elseif id == 'AcceptShare' then
-         -- TODO People could "steal" pages since we don't record what _we_ want to send.
-         -- TODO We don't have a way to stop sharing.
-         assert(pages[body], "Page could not be found with name: "..body);
-         if not sharing[body] then
-            sharing[body]={};
-         end;
-         sharing[body][sender]=true;
-      else
-         -- Add sender to the name so we're unique for all senders.
-         id=sender..id;
-         if not receiving[id] then -- new page incoming
-            receiving[id] = { name = body, data = {} }
-         elseif #body > 1 then -- append to page body
-            table.insert(receiving[id].data, body)
-         else -- page end
-            local page = { name=receiving[id].name, data=table.concat(receiving[id].data) }
-            if autoapproved[page.name] then
-               assert(pages[page.name], "Page could not be found with name: "..page.name);
-               pages[page.name].data=page.data;
-               if Hack.EditedPage() and Hack.EditedPage().name==page.name then
-                  HackEditBox:SetText(page.data)
-               end;
-            else
-               page.name=Hack.GetUniqueName(page.name);
-               local dialog = StaticPopup_Show('HackAccept', sender)
-               if dialog then 
-                  dialog.page = page 
-                  dialog.sender = sender
-               end
-            end;
-            receiving[id] = nil
-         end
+function Hack.CHAT_MSG_ADDON(msg, sender, medium)
+   if sender == PLAYERNAME then return end
+
+   local responders = {};
+   function responders:Ack()
+      printf('%s accepted your page.', sender)
+   end;
+   function responders:Nack()
+      printf('%s rejected your page.', sender)
+   end;
+   function responders:Share()
+      printf('Received %s from %s', body, sender);
+      local dialog=StaticPopup_Show('HackAcceptShare', body, sender);
+      dialog.page=body;
+      dialog.sender=sender;
+   end;
+   function responders:AcceptShare()
+      -- TODO People could "steal" pages since we don't record what _we_ want to send.
+      -- TODO We don't have a way to stop sharing.
+      assert(pages[body], "Page could not be found with name: "..body);
+      if not sharing[body] then
+         sharing[body]={};
       end;
-   end
-end
+      sharing[body][sender]=true;
+   end;
+
+   for cmd, handler in pairs(responders) do
+      if Strings.StartsWith(msg, cmd) then
+         handler[cmd](msg:match(cmd.."(.*)$"));
+         return;
+      end;
+   end;
+   print("Message Not handled: " .. msg);
+end;
+
+function Hack.INCOMING_PAGE(msg, sender, medium)
+   local page = loadstring(msg);
+   if autoapproved[page.name] then
+      assert(pages[page.name], "Page could not be found with name: "..page.name);
+      pages[page.name].data=page.data;
+      if Hack.EditedPage() and Hack.EditedPage().name==page.name then
+         HackEditBox:SetText(page.data)
+      end;
+   else
+      page.name=Hack.GetUniqueName(page.name);
+      local dialog = StaticPopup_Show('HackAccept', sender)
+      if dialog then
+         dialog.page = page
+         dialog.sender = sender
+      end
+   end;
+end;
 
 function Hack.Share(channel, target)
    if not channel then
@@ -801,7 +793,7 @@ function Hack.Share(channel, target)
       Hack.Share("WHISPER", UnitName("target"));
       return;
    end;
-   SendAddonMessage("HackShare", Hack.EditedPage().name, channel, target);
+   Remote["Hack"][target or channel]("HackShare"..Hack.EditedPage().name);
 end;
 
 function Hack.AutoApproveUpdates(page, sender)
@@ -824,3 +816,5 @@ function Hack.MakeESCable(frame,enable)
       table.insert(UISpecialFrames,1,frame)
    end
 end
+
+-- vim: set ts=3 sw=3 et :
