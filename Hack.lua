@@ -729,7 +729,7 @@ end
 
 local i=0;
 function Hack.SendPage(page, channel, name)
-   printf("Sending '%s' to %s", page.name, name or channel);
+   trace("Sending '%s' to %s", page.name, name or channel);
    Remote["HackPages"][name or channel](
       Serializers.WriteStringChunks(page.data, "HackPages"));
 end
