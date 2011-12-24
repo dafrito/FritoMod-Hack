@@ -279,15 +279,13 @@ function Hack.OnLoad(self)
    Remote["Hack"](Hack.CHAT_MSG_ADDON);
    Callbacks.StringChunks(Remote["HackPages"], Hack.INCOMING_PAGE);
 
-   SLASH_HACKSLASH1 = '/hack'
-   SlashCmdList['HACKSLASH'] = 
-      function(name)
-         if name == '' then
-            Hack.Toggle()
-         else 
-            Hack.Run(name)
-         end
+   Slash.hack = function(name)
+      if name == '' then
+         Hack.Toggle()
+      else
+         Hack.Run(name)
       end
+   end
 
    printf('Loaded. /hack to toggle')
 end
