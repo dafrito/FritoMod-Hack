@@ -608,6 +608,7 @@ function Hack.UpdateFont()
 end
 
 function Hack.OnButtonClick(name)
+   trace("Hack button clicked: " .. (name or ""));
    Hack[ name:match('Hack(.*)') ]()
 end
 
@@ -768,7 +769,8 @@ function Hack.CHAT_MSG_ADDON(msg, sender, medium)
 end;
 
 function Hack.INCOMING_PAGE(msg, sender, medium)
-   local page = loadstring(msg);
+   trace("Received page: "..msg);
+   local page = loadstring(msg)();
    if autoapproved[page.name] then
       assert(pages[page.name], "Page could not be found with name: "..page.name);
       pages[page.name].data=page.data;
