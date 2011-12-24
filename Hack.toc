@@ -4,6 +4,7 @@
 ## Notes: Notebook / coding framework.
 ## Author: Mud(Original), Frito, Thonik
 ## SavedVariables: HackDB
+## Dependencies: FritoMod
 Indent.lua
 Hack.lua
 Hack.xml
