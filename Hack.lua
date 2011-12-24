@@ -762,7 +762,7 @@ function Hack.CHAT_MSG_ADDON(msg, sender, medium)
 
    for cmd, handler in pairs(responders) do
       if Strings.StartsWith(msg, cmd) then
-         handler[cmd](msg:match(cmd.."(.*)$"));
+         handler[cmd](msg:match("^"..cmd.."(.*)$"));
          return;
       end;
    end;
