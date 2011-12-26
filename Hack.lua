@@ -730,7 +730,8 @@ local i=0;
 function Hack.SendPage(page, channel, name)
    trace("Sending '%s' to %s", page.name, name or channel);
    Remote["HackPages"][name or channel](
-      Serializers.WriteStringChunks(page.data, "HackPages"));
+      Serializers.WriteStringChunks(
+         Serializers.WriteData(page), "HackPages"));
 end
 
 function Hack.CHAT_MSG_ADDON(msg, sender, medium)
@@ -769,8 +770,10 @@ function Hack.CHAT_MSG_ADDON(msg, sender, medium)
 end;
 
 function Hack.INCOMING_PAGE(msg, sender, medium)
-   trace("Received page: "..msg);
-   local page = loadstring(msg)();
+   trace("Received page %q", msg);
+   local page = Serializers.ReadData(msg);
+   assert(page, "Received page must not be falsy (type was "..type(page)..")");
+   assert(type(page) == "table", "Received page must be a table, but received ".. type(page));
    if autoapproved[page.name] then
       assert(pages[page.name], "Page could not be found with name: "..page.name);
       pages[page.name].data=page.data;
