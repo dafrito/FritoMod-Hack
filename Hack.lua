@@ -254,16 +254,18 @@ function Hack.DoAutorun()
 end
 
 function Hack.GetUniqueName(name)
-
-   if not pages[name] then 
-      return name
-   else
-      for i=2,#order+2 do --+1 for starting at 2; +1 for making sure we get a hit; could probably do a while loop
-         if not pages[name..'('..i..')'] then
-            return name..'('..i..')' 
-           end
-      end
-   end
+   name = name:gsub("%(%d+%)$", "");
+   if not pages[name] then
+      return name;
+   end;
+   local count = 2;
+   while true do
+      local candidate = ("%s(%d)"):format(name, count);
+      if not pages[candidate] then
+         return candidate;
+      end;
+      count = count + 1;
+   end;
 end
 
 function Hack.OnLoad(self)
@@ -738,19 +740,19 @@ function Hack.CHAT_MSG_ADDON(msg, sender, medium)
    if sender == PLAYERNAME then return end
 
    local responders = {};
-   function responders:Ack()
+   function responders.Ack()
       printf('%s accepted your page.', sender)
    end;
-   function responders:Nack()
+   function responders.Nack()
       printf('%s rejected your page.', sender)
    end;
-   function responders:Share()
+   function responders.Share()
       printf('Received %s from %s', body, sender);
       local dialog=StaticPopup_Show('HackAcceptShare', body, sender);
       dialog.page=body;
       dialog.sender=sender;
    end;
-   function responders:AcceptShare()
+   function responders.AcceptShare()
       -- TODO People could "steal" pages since we don't record what _we_ want to send.
       -- TODO We don't have a way to stop sharing.
       assert(pages[body], "Page could not be found with name: "..body);
@@ -762,7 +764,7 @@ function Hack.CHAT_MSG_ADDON(msg, sender, medium)
 
    for cmd, handler in pairs(responders) do
       if Strings.StartsWith(msg, cmd) then
-         handler[cmd](msg:match("^"..cmd.."(.*)$"));
+         handler(msg:match("^"..cmd.."(.*)$"));
          return;
       end;
    end;
