@@ -317,13 +317,13 @@
             <PushedTexture file='Interface\AddOns\Hack\Media\Buttons'> <TexCoords left='.5' right='.625' top='0' bottom='.125'/> </PushedTexture>
          </Button>		
          <Button name='HackRevert' inherits='T_HackButton'>
-            <Anchors> <Anchor point='LEFT' relativeTo='HackRun' relativePoint='RIGHT'/> </Anchors>
+            <Anchors> <Anchor point='RIGHT' relativeTo='HackColorize' relativePoint='LEFT'/> </Anchors>
             <NormalTexture file='Interface\AddOns\Hack\Media\Buttons'> <TexCoords left='.625' right='.75' top='0' bottom='.125'/> </NormalTexture>
             <PushedTexture file='Interface\AddOns\Hack\Media\Buttons'> <TexCoords left='.75' right='.875' top='0' bottom='.125'/> </PushedTexture>
             <DisabledTexture file='Interface\AddOns\Hack\Media\Buttons'> <TexCoords left='.875' right='1' top='0' bottom='.125'/> </DisabledTexture>
          </Button>		
          <Button name='HackShare' inherits='T_HackButton'> 
-            <Anchors> <Anchor point='LEFT' relativeTo='HackRevert' relativePoint='RIGHT'/> </Anchors>
+            <Anchors> <Anchor point='LEFT' relativeTo='HackRun' relativePoint='RIGHT'/> </Anchors>
             <NormalTexture file="Interface\AddOns\Hack\Media\Buttons"> <TexCoords left=".375" right=".5" top=".5" bottom=".625"/> </NormalTexture>
             <PushedTexture file="Interface\AddOns\Hack\Media\Buttons"> <TexCoords left=".5" right=".625" top=".5" bottom=".625"/> </PushedTexture>
             <DisabledTexture file="Interface\AddOns\Hack\Media\Buttons"> <TexCoords left=".625" right=".75" top=".5" bottom=".625"/> </DisabledTexture>
