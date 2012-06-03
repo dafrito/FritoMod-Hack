@@ -25,6 +25,7 @@ Hack = {
       HackAutorun     = 'Run this page automatically when Hack loads',
       HackRun         = 'Run this page',
       HackSend        = 'Send this page to another Hack user',
+      HackShare       = 'Automatically sync this page with another Hack user\nThis feature is experimental and may not work',
       HackSnap        = 'Attach editor to list window',
       HackEditClose   = 'Close editor for this page',
       HackFontCycle   = 'Cycle through available fonts',
