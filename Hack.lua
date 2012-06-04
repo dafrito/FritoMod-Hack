@@ -198,7 +198,7 @@ function Hack.Find(index)
    end
 end
 
--- Thonik: Update to highlight line Num?
+-- TODO Update to highlight line Num?
 function Hack.ScriptError(type, err)
    local name, line, msg = err:match('%[string (".-")%]:(%d+): (.*)')
    printf( '%s error%s:\n %s', type,
@@ -380,8 +380,7 @@ end
 -- Basically got the following from WoWLua
 -- Adding Line Numbers to the EditPage
 function Hack:UpdateLineNums()
-        --could edit it to pass a variable and highlight a line
-
+   -- could edit it to pass a variable and highlight a line
 
    -- Since this can be FAIAP enabled, we need to pass true in order
    -- to get the raw values
@@ -389,18 +388,18 @@ function Hack:UpdateLineNums()
    local linebox = HackLineNumEditBoxFrame
    local linescroll = HackLineNumScrollFrame
    local linetest = HackEditBox:CreateFontString()
-    linetest:SetFont(Hack.fonts[db.font], db.fontsize)
+   linetest:SetFont(Hack.fonts[db.font], db.fontsize)
 
-
-   local width = editbox:GetWidth() -65 --accounting for text insets in the xml
+   -- The 65 accounts for text insets in the xml
+   local width = editbox:GetWidth() - 65
    local text = editbox:GetText(true)
 
    local linetext = ""
    local count = 1
    for line in text:gmatch("([^\n]*\n?)") do
-            if #line > 0 then
-            --will highlight if I ever put it in
-          --linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
+         if #line > 0 then
+         -- XXX will highlight if I ever put it in
+         -- linetext = linetext .. "|cFFFF1111" .. count .. "|r" .. "\n"
          linetext = linetext .. count .. "\n"
          count = count + 1
 
@@ -413,28 +412,23 @@ function Hack:UpdateLineNums()
       end
    end
 --[[
-        --what is this doing?
+   -- XXX what is this doing?
    if text:sub(-1, -1) == "\n" then
       linetext = linetext .. count .. "\n"
       count = count + 1
    end
-       --]]
-
+--]]
 
    -- Make the line number frame wider as necessary
-        linetest:SetText(count)
+   linetest:SetText(count)
    local numwidth = linetest:GetWidth()
-    --always a 3 pixel buffer between the number and the main editbox
+   -- always a 3 pixel buffer between the number and the main editbox
    linescroll:SetWidth(3+numwidth)
    linebox:SetWidth(3+numwidth)
 
-    --apply what we've done
+   -- apply what we've done
    linebox:SetText(linetext)
-
 end
-
-
-
 
 function Hack.UpdateButtons()
    enableButton( HackDelete,   selected )
