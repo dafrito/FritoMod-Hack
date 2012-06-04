@@ -233,10 +233,20 @@ function Hack.Run(index, ...)
    return Hack.Execute( Hack.Get(index or selected), ... )
 end
 
--- Thonik: Don't fully understand
 do
+   -- This table is not accessed outside of Hack.Require, so we isolate it using
+   -- a do...end block here.
    local loaded = {}
-   -- similar to Lua 'require': loads a page if not already loaded
+
+   -- Runs a Hack page, specified by name, only if it has not been ran before. Pages
+   -- that are ran explicitly by the user are not recorded here; specifically, only
+   -- explicit calls to Hack.Require or pages that are autoran will be recorded as
+   -- "loaded".
+   --
+   -- Frito: I think this definition should change to any invocation, whether done by
+   -- the user or by Hack itself. Of course, explicit runs by the user will always
+   -- result in running the page; its merely the status as an ignored invocation that
+   -- would change.
    function Hack.Require(name)
       if not loaded[name] then
          loaded[name] = true
@@ -245,11 +255,10 @@ do
    end
 end
 
-
 function Hack.DoAutorun()
    for _,page in pairs(pages) do
       if page.autorun then
-         Hack.Execute( Hack.Compile(page) )
+         Hack.Require(page.name);
       end
    end
 end
