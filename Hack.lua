@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
--- Original Author: Eric Tetz <erictetz@gmail.com> 2008   
--- Hack. Ingame Lua editing and compiling. Frito. Thonik. 
+-- Original Author: Eric Tetz <erictetz@gmail.com> 2008
+-- Hack. Ingame Lua editing and compiling. Frito. Thonik.
 
 --------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ if HackDB.version and maxVersion == HackDB.version then return end -- don't need
                end
             end
          end
-         HackDB.books = nil 
+         HackDB.books = nil
          HackDB.book = nil
          HackDB.pages = pages
          HackDB.order = order
@@ -248,7 +248,7 @@ end
 
 function Hack.DoAutorun()
    for _,page in pairs(pages) do
-      if page.autorun then 
+      if page.autorun then
          Hack.Execute( Hack.Compile(page) )
       end
    end
@@ -274,7 +274,7 @@ function Hack.OnLoad(self)
    local name = 'HackListItem'
    for i=2,Hack.MaxVisible do
       local li = CreateFrame('Button', name..i, HackListFrame, 'T_HackListItem')
-      li:SetPoint('TOP', name..(i-1), 'BOTTOM') 
+      li:SetPoint('TOP', name..(i-1), 'BOTTOM')
       li:SetID(i)
    end
 
@@ -294,7 +294,7 @@ function Hack.OnLoad(self)
 end
 
 function Hack.VARIABLES_LOADED(self)
-   Hack.Upgrade()   
+   Hack.Upgrade()
    db = HackDB
    pages = db.pages
    order = db.order
@@ -307,7 +307,7 @@ function Hack.VARIABLES_LOADED(self)
    Hack.Snap()
    if not HackIndent then HackColorize:Hide() end
    self:SetMaxResize(Hack.MaxWidth, (Hack.MaxVisible * Hack.ListItemHeight) + Hack.ListVOffset + 5)
-   self:SetMinResize(Hack.MinWidth, Hack.MinHeight) 
+   self:SetMinResize(Hack.MinWidth, Hack.MinHeight)
    HackListFrame:SetScript('OnSizeChanged', Hack.UpdateNumListItemsVisible)
    Hack.UpdateNumListItemsVisible()
    Hack.DoAutorun()
@@ -315,7 +315,7 @@ end
 
 function Hack.SelectListItem(index)
    selected = index
-   Hack.UpdateButtons() 
+   Hack.UpdateButtons()
    Hack.EditPage()
 end
 
@@ -342,7 +342,7 @@ end
 function Hack.UpdateListItems()
    local scrollFrameWidth = HackListFrame:GetWidth() - 18 -- N = inset from right edge
 
-   FauxScrollFrame_Update(HackListScrollFrame, #order, Hack.NumVisible, Hack.ListItemHeight, 
+   FauxScrollFrame_Update(HackListScrollFrame, #order, Hack.NumVisible, Hack.ListItemHeight,
       nil, nil, nil, HackListScrollFrame, scrollFrameWidth-17, scrollFrameWidth) -- N = room for scrollbar
    local offset = FauxScrollFrame_GetOffset(HackListScrollFrame)
    for widgetIndex=1, Hack.MaxVisible do
@@ -359,7 +359,7 @@ function Hack.UpdateListItems()
          edit:ClearFocus() -- in case someone tries to scroll while renaming
            if Hack.SearchMatch(item) then
             name:SetTextColor(1,1,1) else name:SetTextColor(.3,.3,.3) end
-         if itemIndex == selected then 
+         if itemIndex == selected then
             widget:LockHighlight() else widget:UnlockHighlight() end
          auto:Show()
          name:SetText(item.name)
@@ -372,7 +372,7 @@ end
 -- Adding Line Numbers to the EditPage
 function Hack:UpdateLineNums()
         --could edit it to pass a variable and highlight a line
-   
+
 
    -- Since this can be FAIAP enabled, we need to pass true in order
    -- to get the raw values
@@ -399,7 +399,7 @@ function Hack:UpdateLineNums()
          linetest:SetText(line:gsub("|", "||"))
          local testwidth = linetest:GetWidth()
          if testwidth >= width then
-            linetext = linetext .. string.rep("\n", math.floor(testwidth / width))   
+            linetext = linetext .. string.rep("\n", math.floor(testwidth / width))
          end
       end
    end
@@ -420,8 +420,8 @@ function Hack:UpdateLineNums()
    linebox:SetWidth(3+numwidth)
 
     --apply what we've done
-   linebox:SetText(linetext)  
-              
+   linebox:SetText(linetext)
+
 end
 
 
@@ -429,7 +429,7 @@ end
 
 function Hack.UpdateButtons()
    enableButton( HackDelete,   selected )
-   enableButton( HackRename,   selected )   
+   enableButton( HackRename,   selected )
    enableButton( HackSend,     selected )
    enableButton( HackMoveUp,   selected and selected > 1 )
    enableButton( HackMoveDown, selected and selected < #order )
@@ -466,7 +466,7 @@ function Hack.DoSearch(direction) -- 1=down, -1=up
    until it == start
 end
 
-function Hack.ScrollSelectedIntoView() 
+function Hack.ScrollSelectedIntoView()
    local offset = FauxScrollFrame_GetOffset(HackListScrollFrame)
    local id = selected - offset
    if     id >  Hack.NumVisible then offset = selected-Hack.NumVisible
@@ -514,22 +514,22 @@ end
 function Hack.FinishRename(name, editbox)
    name = Hack.GetUniqueName(name)
    pages[name] = pages[order[selected]]
-   pages[name].name = name 
+   pages[name].name = name
    pages[order[selected]] = nil  --its happening
    order[selected] = name
    Hack.UpdateListItems()
 end
 
-function Hack.New(page, atEnd) 
+function Hack.New(page, atEnd)
    local index = (atEnd and #order+1) or  selected and selected+1 or #order+1
    if page then
       page.name = Hack.GetUniqueName(page.name)
    else
       page = {name = Hack.GetUniqueName(''), data='' }
    end
-   
+
    pages[page.name] = page
-   table.insert(order, index, page.name) 
+   table.insert(order, index, page.name)
    pages[page.name].index = #order
 
    Hack.SelectListItem(index)
@@ -586,9 +586,9 @@ function Hack.MoveDown()
 end
 
 function Hack.FontBigger()
-   db.fontsize = db.fontsize + 1 
+   db.fontsize = db.fontsize + 1
    Hack.UpdateFont()
-end 
+end
 
 function Hack.FontSmaller()
    db.fontsize = db.fontsize - 1
@@ -657,7 +657,7 @@ end;
 local shareMyPage=Timing.Cooldown(.25, Hack.SendPageToWatchers);
 function Hack.OnEditorTextChanged(self, isUserInput)
    local page = pages[order[selected]]
-   page.data = self:GetText() 
+   page.data = self:GetText()
    enableButton(HackRevert, page.data ~= Hack.revert)
    if not HackEditScrollFrameScrollBarThumbTexture:IsVisible() then
       HackEditScrollFrameScrollBar:Hide()
@@ -689,7 +689,7 @@ end
 
 function Hack.Snap()
    HackDB.snap = HackSnap:GetChecked()
-   if HackDB.snap then 
+   if HackDB.snap then
       HackEditFrame:ClearAllPoints()
       HackEditFrame:SetPoint('TOPLEFT', HackListFrame, 'TOPRIGHT', -2, 0)
    end
@@ -710,8 +710,8 @@ do
    local menu = {
       { text = 'Player', func = function()
             local dialog = StaticPopup_Show('HackSendTo')
-            if dialog then 
-               dialog.page = pages[order[selected]] 
+            if dialog then
+               dialog.page = pages[order[selected]]
                dialog.editBox:SetScript('OnEnterPressed',  function(t) dialog.button1:Click() end)
             end
          end

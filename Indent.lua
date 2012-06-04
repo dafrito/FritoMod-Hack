@@ -39,7 +39,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
    local stringchar = string.char
    local stringrep = string.rep
    local stringgsub = string.gsub
-   
+
    local workingTable = {}
    local workingTable2 = {}
    local function tableclear(t)
@@ -107,7 +107,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
    tokens.TOKEN_HASH = 39
    tokens.TOKEN_PERCENT = 40
 
-   
+
    -- ascii codes
    local bytes = {}
    lib.bytes = bytes
@@ -149,13 +149,13 @@ if not HackIndent.revision or revision > HackIndent.revision then
 -- new as of lua 5.1
    bytes.BYTE_HASH = stringbyte("#")
    bytes.BYTE_PERCENT = stringbyte("%")
-   
-   
+
+
    local linebreakCharacters = {}
    lib.linebreakCharacters = linebreakCharacters
    linebreakCharacters[bytes.BYTE_LINEBREAK_UNIX] = 1
    linebreakCharacters[bytes.BYTE_LINEBREAK_MAC] = 1
-   
+
    local whitespaceCharacters = {}
    lib.whitespaceCharacters = whitespaceCharacters
    whitespaceCharacters[bytes.BYTE_SPACE] = 1
@@ -196,21 +196,21 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 if not byte then
 	    return tokens.TOKEN_NUMBER, pos
 	 end
-	 
+	
 	 if byte >= bytes.BYTE_0 and byte <= bytes.BYTE_9 then	
 	    pos = pos + 1
 	 else
-	    return tokens.TOKEN_NUMBER, pos 
+	    return tokens.TOKEN_NUMBER, pos
 	 end
       end
    end
-   
+
    local function nextNumberExponentPart(text, pos)
       local byte = stringbyte(text, pos)
       if not byte then
 	 return tokens.TOKEN_NUMBER, pos
       end
-      
+
       if byte == bytes.BYTE_MINUS then
 	 -- handle this case: a = 1.2e-- some comment
 	 -- i decide to let 1.2e be parsed as a a number
@@ -220,34 +220,34 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 end
 	 return nextNumberExponentPartInt(text, pos + 1)
       end
-      
+
       return nextNumberExponentPartInt(text, pos)
    end
-   
+
    local function nextNumberFractionPart(text, pos)
       while true do
 	 local byte = stringbyte(text, pos)
 	 if not byte then
 	    return tokens.TOKEN_NUMBER, pos
 	 end
-	 
+	
 	 if byte >= bytes.BYTE_0 and byte <= bytes.BYTE_9 then	
 	    pos = pos + 1
 	 elseif byte == bytes.BYTE_E or byte == bytes.BYTE_e then
 	    return nextNumberExponentPart(text, pos + 1)
 	 else
-	    return tokens.TOKEN_NUMBER, pos 
+	    return tokens.TOKEN_NUMBER, pos
 	 end
       end
    end
-   
+
    local function nextNumberIntPart(text, pos)
       while true do
 	 local byte = stringbyte(text, pos)
 	 if not byte then
 	    return tokens.TOKEN_NUMBER, pos
 	 end
-	 
+	
 	 if byte >= bytes.BYTE_0 and byte <= bytes.BYTE_9 then	
 	    pos = pos + 1
 	 elseif byte == bytes.BYTE_PERIOD then
@@ -259,11 +259,11 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 end
       end
    end
-   
+
    local function nextIdentifier(text, pos)
       while true do
 	 local byte = stringbyte(text, pos)
-	 
+	
 	 if not byte or
 	    linebreakCharacters[byte] or
 	    whitespaceCharacters[byte] or
@@ -294,7 +294,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
       end
    end
 
-   
+
    -- Already parsed the [==[ part when get here
    local function nextBracketString(text, pos, equalsCount)
       local state = 0
@@ -303,7 +303,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 if not byte then
 	    return tokens.TOKEN_STRING, pos
 	 end
-	 
+	
 	 if byte == bytes.BYTE_RIGHTBRACKET then
 	    if state == 0 then
 	       state = 1
@@ -346,7 +346,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 pos = pos + 1
       end
    end
-   
+
    local function nextString(text, pos, character)
       local even = true
       while true do
@@ -354,7 +354,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 if not byte then
 	    return tokens.TOKEN_STRING, pos
 	 end
-	 
+	
 	 if byte == character then
 	    if even then
 	       return tokens.TOKEN_STRING, pos + 1
@@ -365,11 +365,11 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 else
 	    even = true
 	 end
-	 
+	
 	 pos = pos + 1
       end
    end
-   
+
    -- INPUT
    -- 1: text: text to search in
    -- 2: tokenPos:  where to start searching
@@ -381,11 +381,11 @@ if not HackIndent.revision or revision > HackIndent.revision then
       if not byte then
 	 return nil
       end
-      
+
       if linebreakCharacters[byte] then
 	 return tokens.TOKEN_LINEBREAK, pos + 1
       end
-      
+
       if whitespaceCharacters[byte] then
 	 while true do
 	    pos = pos + 1
@@ -395,13 +395,13 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	 end
       end
-      
+
       local token = specialCharacters[byte]
       if token then
 	 if token ~= -1 then
 	    return token, pos + 1
 	 end
-	 
+	
 	 -- WoW specific (for color codes)
 	 if byte == bytes.BYTE_VERTICAL then
 	    byte = stringbyte(text, pos + 1)
@@ -416,7 +416,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_UNKNOWN, pos + 1
 	 end
-	 
+	
 	 if byte == bytes.BYTE_MINUS then
 	    byte = stringbyte(text, pos + 1)
 	    if byte == bytes.BYTE_MINUS then
@@ -424,11 +424,11 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_MINUS, pos + 1
 	 end
-	 
+	
 	 if byte == bytes.BYTE_SINGLE_QUOTE then
 	    return nextString(text, pos + 1, bytes.BYTE_SINGLE_QUOTE)
 	 end
-	 
+	
 	 if byte == bytes.BYTE_DOUBLE_QUOTE then
 	    return nextString(text, pos + 1, bytes.BYTE_DOUBLE_QUOTE)
 	 end
@@ -441,7 +441,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	       return tokens.TOKEN_LEFTBRACKET, pos + 1
 	    end
 	 end
-	 
+	
 	 if byte == bytes.BYTE_EQUALS then
 	    byte = stringbyte(text, pos + 1)
 	    if not byte then
@@ -452,7 +452,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_ASSIGNMENT, pos + 1
 	 end
-	 
+	
 	 if byte == bytes.BYTE_PERIOD then
 	    byte = stringbyte(text, pos + 1)
 	    if not byte then
@@ -469,7 +469,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_PERIOD, pos + 1
 	 end
-	 
+	
 	 if byte == bytes.BYTE_LESSTHAN then
 	    byte = stringbyte(text, pos + 1)
 	    if byte == bytes.BYTE_EQUALS then
@@ -477,7 +477,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_LT, pos + 1
 	 end
-	 
+	
 	 if byte == bytes.BYTE_GREATERTHAN then
 	    byte = stringbyte(text, pos + 1)
 	    if byte == bytes.BYTE_EQUALS then
@@ -485,7 +485,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_GT, pos + 1
 	 end
-	 
+	
 	 if byte == bytes.BYTE_TILDE then
 	    byte = stringbyte(text, pos + 1)
 	    if byte == bytes.BYTE_EQUALS then
@@ -493,7 +493,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    end
 	    return tokens.TOKEN_TILDE, pos + 1
 	 end
-	 
+	
 	 return tokens.TOKEN_UNKNOWN, pos + 1
       elseif byte >= bytes.BYTE_0 and byte <= bytes.BYTE_9 then
 	 return nextNumberIntPart(text, pos + 1)
@@ -528,7 +528,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
    keywords["until"] = indentLeft
    keywords["elseif"] = indentLeft
    keywords["end"] = indentLeft
-   
+
    keywords["do"] = indentRight
    keywords["then"] = indentRight
    keywords["repeat"] = indentRight
@@ -553,7 +553,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
    local function fillWithSpaces(a, b)
       return stringrep(" ", a*b)
    end
-   
+
    function lib.colorCodeCode(code, colorTable, caretPosition)
       local stopColor = colorTable and colorTable[0]
       if not stopColor then
@@ -570,7 +570,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
       local newCaretPosition
       local prevTokenWasColored = false
       local prevTokenWidth = 0
-      
+
       local pos = 1
       local level = 0
 
@@ -590,19 +590,19 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	       newCaretPosition = newCaretPosition - diff
 	    end
 	 end
-	 
+	
 	 prevTokenWasColored = false
 	 prevTokenWidth = 0
-	 
+	
 	 local tokenType, nextPos = nextToken(code, pos)
-	 
+	
 	 if not tokenType then
 	    break
 	 end
-	 
+	
 	 if tokenType == tokens.TOKEN_COLORCODE_START or tokenType == tokens.TOKEN_COLORCODE_STOP or tokenType == tokens.TOKEN_UNKNOWN then
 	    -- ignore color codes
-	    
+	
 	 elseif tokenType == tokens.TOKEN_LINEBREAK or tokenType == tokens.TOKEN_WHITESPACE then
 	    if tokenType == tokens.TOKEN_LINEBREAK then
 	       numLines = numLines + 1
@@ -615,14 +615,14 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    totalLen = totalLen + stringlen(str)
 	 else
 	    local str = stringsub(code, pos, nextPos - 1)
-	    
+	
 	    prevTokenWidth = nextPos - pos
-	    
+	
 	    -- Add coloring
 	    if keywords[str] then
 	       tokenType = tokens.TOKEN_KEYWORD
 	    end
-	    
+	
 	    local color
 	    if stopColor then
 	       color = colorTable[str]
@@ -637,7 +637,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 		  end
 	       end
 	    end
-	    
+	
 	    if color then
 	       tsize = tsize + 1
 	       workingTable[tsize] = color
@@ -655,7 +655,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	       totalLen = totalLen + stringlen(str)
 	    end
 	 end
-	 
+	
 	 pos = nextPos
       end
       return table.concat(workingTable), newCaretPosition, numLines
@@ -671,7 +671,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
       else
 	 fillFunction = fillWithTabs
       end
-      
+
       tableclear(workingTable)
       local tsize = 0
       local totalLen = 0
@@ -688,10 +688,10 @@ if not HackIndent.revision or revision > HackIndent.revision then
       local newCaretPositionFinalized = false
       local prevTokenWasColored = false
       local prevTokenWidth = 0
-      
+
       local pos = 1
       local level = 0
-      
+
       local hitNonWhitespace = false
       local hitIndentRight = false
       local preIndent = 0
@@ -712,27 +712,27 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	       newCaretPosition = newCaretPosition - diff
 	    end
 	 end
-	 
+	
 	 prevTokenWasColored = false
 	 prevTokenWidth = 0
-	 
+	
 	 local tokenType, nextPos = nextToken(code, pos)
-	 
+	
 	 if not tokenType or tokenType == tokens.TOKEN_LINEBREAK then
 	    level = level + preIndent
 	    if level < 0 then level = 0 end
-	    
+	
 	    local s = fillFunction(level, tabWidth)
 
 	    tsize = tsize + 1
 	    workingTable[tsize] = s
 	    totalLen = totalLen + stringlen(s)
-	    
+	
 	    if newCaretPosition and not newCaretPositionFinalized then
 	       newCaretPosition = newCaretPosition + stringlen(s)
 	       newCaretPositionFinalized = true
 	    end
-	    
+	
 
 	    for k, v in next,workingTable2 do
 	       tsize = tsize + 1
@@ -743,14 +743,14 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    if not tokenType then
 	       break
 	    end
-	    
+	
 	    tsize = tsize + 1
 	    workingTable[tsize] = stringsub(code, pos, nextPos - 1)
 	    totalLen = totalLen + nextPos - pos
 
 	    level = level + postIndent
 	    if level < 0 then level = 0 end
-	    
+	
 	    tableclear(workingTable2)
 	    tsize2 = 0
 	    totalLen2 = 0
@@ -762,7 +762,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 elseif tokenType == tokens.TOKEN_WHITESPACE then
 	    if hitNonWhitespace then
 	       prevTokenWidth = nextPos - pos
-	       
+	
 	       tsize2 = tsize2 + 1
 	       local s = stringsub(code, pos, nextPos - 1)
 	       workingTable2[tsize2] = s
@@ -772,11 +772,11 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    -- skip these, though they shouldn't be encountered here anyway
 	 else
 	    hitNonWhitespace = true
-	    
+	
 	    local str = stringsub(code, pos, nextPos - 1)
-	    
+	
 	    prevTokenWidth = nextPos - pos
-	    
+	
 	    -- See if this is an indent-modifier
 	    local indentTable
 	    if tokenType == tokens.TOKEN_IDENTIFIER then
@@ -784,7 +784,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	    else
 	       indentTable = tokenIndentation[tokenType]
 	    end
-	    
+	
 	    if indentTable then
 	       if hitIndentRight then
 		  postIndent = postIndent + indentTable[1] + indentTable[2]
@@ -798,12 +798,12 @@ if not HackIndent.revision or revision > HackIndent.revision then
 		  postIndent = postIndent + post
 	       end
 	    end
-	    
+	
 	    -- Add coloring
 	    if keywords[str] then
 	       tokenType = tokens.TOKEN_KEYWORD
 	    end
-	    
+	
 	    local color
 	    if stopColor then
 	       color = colorTable[str]
@@ -818,7 +818,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 		  end
 	       end
 	    end
-	    
+	
 	    if color then
 	       tsize2 = tsize2 + 1
 	       workingTable2[tsize2] = color
@@ -844,7 +844,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
       end
       return table.concat(workingTable), newCaretPosition
    end
-   
+
 
 
    -- WoW specific code:
@@ -852,7 +852,7 @@ if not HackIndent.revision or revision > HackIndent.revision then
 
    local editboxSetText
    local editboxGetText
-   
+
    -- Caret code (thanks Tem!)
    local function critical_enter(editbox)
       local script = editbox:GetScript("OnTextSet")
@@ -867,10 +867,10 @@ if not HackIndent.revision or revision > HackIndent.revision then
 	 editbox:SetScript("OnTextSet", script)
       end
    end
-   
+
    local function setCaretPos_main(editbox, pos)
       local text = editboxGetText(editbox)
-      
+
       if stringlen(text) > 0 then
 	 editboxSetText(editbox, stringinsert(text, pos, "a"))
 	 editbox:HighlightText(pos, pos + 1)
@@ -880,17 +880,17 @@ if not HackIndent.revision or revision > HackIndent.revision then
 
    local function getCaretPos(editbox)
       local script = critical_enter(editbox)
-      
+
       local text = editboxGetText(editbox)
       editbox:Insert("\1")
       local pos = stringfind(editboxGetText(editbox), "\1", 1, 1)
       editboxSetText(editbox, text)
-      
+
       if pos then
 	 setCaretPos_main(editbox, pos - 1)
       end
       critical_leave(editbox, script)
-      
+
       return (pos or 0) - 1
    end
 
@@ -908,7 +908,7 @@ function lib.stripWowColors(code)
       -- The reason for the bug, is that a |r\n\n gets converted to \n\n|r after the next indent-run
       -- The fix is to remove those last two linebreaks when stripping
       code = stringgsub(code, "|r\n\n$", "|r")
-      
+
 	tableclear(workingTable)
 	local tsize = 0
 
@@ -965,7 +965,7 @@ end
       end
       return code or ""
    end
- 
+
    function lib.encode(code)
       if code then
 	 code = stringgsub(code, "|", "||")
@@ -1005,14 +1005,14 @@ end
       if prevCode == orgCode then
 	 return
       end
-      
+
       local pos = getCaretPos(editbox)
-      
+
       local code
       code, pos = lib.stripWowColorsWithPos(orgCode, pos)
 
       colorTable[0] = "|r"
-      
+
       local newCode, newPos, numLines = lib.colorCodeCode(code, colorTable, pos)
 
       editboxStringCache[editbox] = newCode
@@ -1025,18 +1025,18 @@ end
 	 if newPos then
 	    if newPos < 0 then newPos = 0 end
 	    if newPos > stringlenNewCode then newPos = stringlenNewCode end
-	    
+	
 	    setCaretPos(editbox, newPos)
 	 end
 	 critical_leave(editbox, script, script2)
       end
-      
+
       if editboxNumLinesCache[editbox] ~= numLines then
 	 lib.indentEditbox(editbox)
       end
       editboxNumLinesCache[editbox] = numLines
    end
-   
+
    function lib.indentEditbox(editbox)
       dirty[editbox] = nil
 
@@ -1050,7 +1050,7 @@ end
       end
 
       local pos = getCaretPos(editbox)
-      
+
       local code
       code, pos = lib.stripWowColorsWithPos(orgCode, pos)
 
@@ -1068,7 +1068,7 @@ end
 	 if newPos then
 	    if newPos < 0 then newPos = 0 end
 	    if newPos > stringlenNewCode then newPos = stringlenNewCode end
-	    
+	
 	    setCaretPos(editbox, newPos)
 	 end
 	 critical_leave(editbox, script, script2)
@@ -1173,8 +1173,8 @@ end
       editbox.SetText = newSetText
 
       hookHandler(editbox, "OnTextChanged", textChangedHook)
-      hookHandler(editbox, "OnTabPressed", tabPressedHook)      
-      hookHandler(editbox, "OnUpdate", onUpdateHook)      
+      hookHandler(editbox, "OnTabPressed", tabPressedHook)
+      hookHandler(editbox, "OnUpdate", onUpdateHook)
 
       lib.indentEditbox(editbox)
    end
@@ -1232,7 +1232,7 @@ end
    local stringColor = "|c00ffff77"
    defaultColorTable[tokens.TOKEN_STRING] = stringColor
    defaultColorTable[".."] = stringColor
-   
+
    local tableColor = "|c00ff9900"
    defaultColorTable["..."] = tableColor
    defaultColorTable["{"] = tableColor
@@ -1254,12 +1254,12 @@ end
    defaultColorTable[">"] = logicColor1
    defaultColorTable[">="] = logicColor1
    defaultColorTable["~="] = logicColor1
-   
+
    local logicColor2 = "|c0088ffbb"
    defaultColorTable["and"] = logicColor2
    defaultColorTable["or"] = logicColor2
    defaultColorTable["not"] = logicColor2
-   
+
    defaultColorTable[0] = "|r"
 
 	-- color scheme used by Hack
@@ -1286,25 +1286,25 @@ function testTokenizer()
    for line in io.lines("indent.lua") do
       str = str .. line .. "\n"
    end
-   
+
    local pos = 1
-   
+
    while true do
       local tokenType, nextPos = nextToken(str, pos)
-      
+
       if not tokenType then
 	 break
       end
-      
+
       if true or tokenType ~= tokens.TOKEN_WHITESPACE and tokenType ~= tokens.TOKEN_LINEBREAK then
 	 print(stringformat("Found token %d (%d-%d): (%s)", tokenType, pos, nextPos - 1, stringsub(str, pos, nextPos - 1)))
       end
-      
+
       if tokenType == tokens.TOKEN_UNKNOWN then
 	 print("unknown token!")
 	 break
-      end	 
-      
+      end	
+
       pos = nextPos
    end
 end
@@ -1316,11 +1316,11 @@ function testIndenter(i)
    for line in io.lines("test.lua") do
       str = str .. line .. "\n"
    end
-   
+
    local colorTable = lib.defaultColorTable
    print(lib.indentCode(str, 4, colorTable, i))
 end
-   
+
 
 testIndenter()
 
